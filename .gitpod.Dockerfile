@@ -5,7 +5,7 @@ FROM gitpod/workspace-full:latest
 #RUN sudo mv /home/gitpod/.pyenv /workspace/pyenv
 #RUN sudo ln -s /workspace/pyenv /home/gitpod/.pyenv
 
-RUN wget -O /home/gitpod/requirements.txt https://raw.githubusercontent.com/gsingers/search_with_machine_learning_course/main/requirements.txt
+RUN wget -O /home/gitpod/requirements.txt https://raw.githubusercontent.com/gsingers/search_engineering/main/requirements.txt
 
 RUN echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> /home/gitpod/.bashrc
 RUN echo 'eval "$(pyenv init -)"' >> /home/gitpod/.bashrc
