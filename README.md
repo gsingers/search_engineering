@@ -1,9 +1,10 @@
 # Welcome to Search Engineering
 
-Search Engineering is a four week class taught by Grant Ingersoll and Dave Anderson and is focused on helping students
+Search Engineering is a four week class taught by [Grant Ingersoll](https://www.linkedin.com/in/grantingersoll/) and [Dave Anderson](https://www.linkedin.com/in/daveandersonncsu/) and is focused on helping students
 quickly get up to speed on search best practices related to performance, scaling, fault tolerance, backups and recovery.  
 
-Students will first learn to optimize a single node of search and then scale it out to a multi-node cluster.
+Students will first learn about common search architecture and data modeling practices, then work on optimizing a single node of search, before scaling out to a multi-node cluster. Finally, students will look into key factors in creating a reliable search 
+system like security, monitoring and backup/recovery. 
 
 The class is a hands-on project-driven course where students will work with real data and the [Opensearch](https://opensearch.com)/Elasticsearch ecosystem.
 
@@ -26,8 +27,8 @@ You will also find several supporting directories and files for Docker and Gitpo
 
 # Prerequisites
 
-1. No prior search knowledge is required, but you should be able to code in Python or Java (all examples are in Python)
-1. You will need a [Gitpod](https://gitpod.io) account.
+1. You will need a [Gitpod](https://gitpod.io) account or the ability to run [Docker](https://docker.com) containers.
+   1. If running locally, you will want at least 16GB of RAM and 30GB of disk space, with more being better!
 
 # Working in Gitpod (Officially Supported)
 
@@ -37,12 +38,36 @@ The following things must be done each time you create a new Gitpod Workspace (u
 
 1. Fork this repository.
 1. Launch a new Gitpod workspace based on this repository.  
-    1. Note: it can take a few minutes for OpenSearch and the dashboards to launch.
-1. [TBD START WHATEVER APPROPRIATE OPENSEARCH]
+    
+1. Start the OpenSearch instance associated with the week you are working on, e.g.:
+   1. `cd docker`
+   2. `docker-compose -f docker-compose-w1.yml up`
 1. You should now have a running Opensearch instance (port 9200) and a running Opensearch Dashboards instance (port 5601)
 1. Login to the dashboards at `https://5601-<$GITPOD_URL>/` with default username `admin` and password `admin`. This should popup automatically as a new tab, unless you have blocked popups.  Also note, that in the real world, you would change your password.  Since these ports are blocked if you aren't logged into Gitpod, it's OK.
 
         $GITPOD_URL is a placeholder for your ephemeral Gitpod host name, e.g. silver-grasshopper-8czadqyn.ws-us25.gitpod.io
+
+# Working in Docker (Officially Supported)
+
+To run locally or in your own cloud instance using Docker, you will need a few things:
+
+1. [Docker](https://docker.com/) and the ability to pull from Docker Hub.
+1. A [Git](https://git-scm.com/) client
+2. [cURL](https://curl.se/) and [wget](https://www.gnu.org/software/wget/)
+                                                                         
+
+NOTE: You must be able to run Docker in `--privileged` mode.
+
+
+1. `pyenv install 3.10.6`
+1. `pip install` all of the libraries you see in `.gitpod.Dockerfile`
+1. Setup your weekly python environments per the "Weekly Project" above.
+1. Install [Fasttext](https://fasttext.cc/)  
+1. Run OpenSearch: 
+    1. `cd docker`
+    1. `docker-compose up`
+1. Do your work per the Weekly Project     
+    
 
 # Exploring the OpenSearch Sample Dashboards and Data
 
@@ -57,23 +82,3 @@ At the command line, do the following steps to run the example.
 1. Activate your Python Virtual Environment.  We use `pyenv` (Pyenv website)[https://github.com/pyenv/pyenv] and `pyenv-virtualenv` (Pyenv Virtualenv)[https://github.com/pyenv/pyenv-virtualenv].
     1. `pyenv activate search_eng` -- Activate the Virtualenv. 
 1. Optional: You can run `ipython` if you like.
-    
-# Working locally (Not supported, but may work for you. YMMV)
-
-To run locally, you will need a few things:
-
-1. [Pyenv](https://github.com/pyenv/pyenv) and [Pyenv-Virtualenv](https://github.com/pyenv/pyenv-virtualenv) with Python 3.9.7 installed
-1. [Docker](https://docker.com/)
-1. A [Git](https://git-scm.com/) client
-
-Note: these have only been tested on a Mac running OS 12.2.1.  YMMV.  Much of what you will need to do will be similar to what's in `.gitpod.Dockerfile`
-
-1. `pyenv install 3.10.6`
-1. `pip install` all of the libraries you see in `.gitpod.Dockerfile`
-1. Setup your weekly python environments per the "Weekly Project" above.
-1. Install [Fasttext](https://fasttext.cc/)  
-1. Run OpenSearch: 
-    1. `cd docker`
-    1. `docker-compose up`
-1. Do your work per the Weekly Project     
-    
