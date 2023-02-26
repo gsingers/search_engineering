@@ -56,17 +56,19 @@ To run locally or in your own cloud instance using Docker, you will need a few t
 2. [cURL](https://curl.se/) and [wget](https://www.gnu.org/software/wget/)
                                                                          
 
-NOTE: You must be able to run Docker in `--privileged` mode.
+NOTE: If you are on a Mac, you will probably want to enable the `VirtioFS` option for I/O.
 
+Our basic setup will be to run the Gitpod dockerfile (published as `gsingers/search_engineering` on Docker Hub, with the appropriate networking and volume mounts to provide a standard dev environment
+while also allowing for local file editing.
 
-1. `pyenv install 3.10.6`
-1. `pip install` all of the libraries you see in `.gitpod.Dockerfile`
-1. Setup your weekly python environments per the "Weekly Project" above.
-1. Install [Fasttext](https://fasttext.cc/)  
-1. Run OpenSearch: 
-    1. `cd docker`
-    1. `docker-compose up`
-1. Do your work per the Weekly Project     
+1. Create a "parent" directory somewhere on your filesystem, such as `~/projects/corise/search_engineering` and change into that directory
+   2. Git clone this repository underneath that directory
+   3. `mkdir datasets` 
+2. Run docker by attaching volumes for the repo and the dataset: 
+   3. Interactive: `docker run -v <PATH TO WHERE YOU CLONED THIS REPO>:/workspace/search_engineering -v ~/projects/corise/search_engineering/datasets:/workspace/datasets --network docker_opensearch-net --name search_engineering -it gsingers/search_engineering:latest`
+   4. Detached: `docker run -v ~/projects/corise/search_engineering/search_engineering:/workspace/search_engineering -v ~/projects/corise/search_engineering/datasets:/workspace/datasets --network docker_opensearch-net --name search_engineering -d gsingers/search_engineering:latest`
+      5. If you run detached, you will need to exec into the instance
+6. Once in your Docker instance, you can proceed as required by the project with downloading the data, etc.  Note: you may want to download the data natively into the `datasets` directory, as doing it through Docker can be quite slow
     
 
 # Exploring the OpenSearch Sample Dashboards and Data

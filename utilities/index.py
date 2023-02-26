@@ -14,10 +14,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logging.basicConfig(format='%(levelname)s:%(message)s')
 
-
-# NOTE: this is not a complete list of fields.  If you wish to add more, put in the appropriate XPath expression.
-# TODO: is there a way to do this using XPath/XSL Functions so that we don't have to maintain a big list?
-
 def get_opensearch():
     host = 'localhost'
     port = 9200
@@ -68,7 +64,7 @@ def index_file(file, index_name, max_docs, batch_size=500):
               help="The maximum number of documents to send in bulk to OpenSearch at a time")
 @click.option('--workers', '-w', default=8, help="The number of workers to use to process files")
 def main(source_dir: str, index_name: str, max_docs: int, batch_size: int, workers: int):
-    files = glob.glob(source_dir + "/esci.json.*") #this should work on the split files, not the main file, which allows us to index in parallel
+    files = glob.glob(source_dir + "/esci.json.split.*") #this should work on the split files, not the main file, which allows us to index in parallel
     docs_indexed = 0
     start = perf_counter()
     with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as executor:
