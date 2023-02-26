@@ -8,6 +8,7 @@ import logging
 from time import perf_counter
 import concurrent.futures
 import pandas as pd
+import json
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -35,32 +36,24 @@ def get_opensearch():
     )
     return client
 
-
-def index_file(file, index_name):
+# Input is JSON Lines file, so each line is a complete JSON document
+def index_file(file, index_name, max_docs, batch_size=500):
     docs_indexed = 0
     client = get_opensearch()
     logger.info(f'Processing file : {file}')
-    tree = etree.parse(file)
-    root = tree.getroot()
-    children = root.findall("./product")
+    json_lines = pd.read_json(file, lines=True)
     docs = []
-    for child in children:
-        doc = {}
-        for idx in range(0, len(mappings), 2):
-            xpath_expr = mappings[idx]
-            key = mappings[idx + 1]
-            doc[key] = child.xpath(xpath_expr)
-        #print(doc)
-        if 'productId' not in doc or len(doc['productId']) == 0:
-            continue
+    for line in json_lines:
+        if docs_indexed < max_docs:
+            doc = json.loads(line)
 
-        docs.append({'_index': index_name, '_id':doc['sku'][0], '_source' : doc})
-        #docs.append({'_index': index_name, '_source': doc})
-        docs_indexed += 1
-        if docs_indexed % 200 == 0:
-            bulk(client, docs, request_timeout=60)
-            #logger.info(f'{docs_indexed} documents indexed')
-            docs = []
+            docs.append({'_index': index_name, '_id':doc.product_id, '_source' : doc._asdict()})
+            docs_indexed += 1
+            if docs_indexed % batch_size == 0:
+                bulk(client, docs, request_timeout=60)
+                docs = []
+            else:
+                break
     if len(docs) > 0:
         bulk(client, docs, request_timeout=60)
         logger.info(f'{docs_indexed} documents indexed')
@@ -71,13 +64,15 @@ def index_file(file, index_name):
 @click.option('--index_name', '-i', default="esci", help="The name of the index to write to")
 @click.option('--max_docs', '-m', default="2000000",
               help="The maximum number of documents to index per worker")
+@click.option('--batch_size', '-b', default="500",
+              help="The maximum number of documents to send in bulk to OpenSearch at a time")
 @click.option('--workers', '-w', default=8, help="The number of workers to use to process files")
-def main(source_file: str, index_name: str, max_docs: int):
-    files = glob.glob(source_dir + "/*.xml")
+def main(source_dir: str, index_name: str, max_docs: int, batch_size: int, workers: int):
+    files = glob.glob(source_dir + "/esci.json.*") #this should work on the split files, not the main file, which allows us to index in parallel
     docs_indexed = 0
     start = perf_counter()
     with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as executor:
-        futures = [executor.submit(index_file, file, index_name) for file in files]
+        futures = [executor.submit(index_file, file, index_name, max_docs, batch_size) for file in files]
         for future in concurrent.futures.as_completed(futures):
             docs_indexed += future.result()
 

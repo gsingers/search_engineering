@@ -6,6 +6,8 @@ FROM gitpod/workspace-full:latest
 #RUN sudo ln -s /workspace/pyenv /home/gitpod/.pyenv
 RUN sudo apt-get install zstd
 
+USER gitpod
+
 RUN git clone https://github.com/pyenv/pyenv-virtualenv.git /home/gitpod/.pyenv/plugins/pyenv-virtualenv
 
 RUN wget -O /home/gitpod/requirements.txt https://raw.githubusercontent.com/gsingers/search_engineering/main/requirements.txt
