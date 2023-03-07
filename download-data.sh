@@ -1,18 +1,11 @@
-mkdir -p /workspace/datasets/esci
-cd /workspace/datasets/esci
-
-echo "Cloning https://github.com/shuttie/esci-s.git to /workspace/datasets/esci"
-# Git the original files for ESCI
-git clone https://github.com/amazon-science/esci-data.git
-# Git the ESCI data with metadata, as it is much more interesting
-echo "Cloning the extended data for ESCI"
-git clone https://github.com/shuttie/esci-s.git
-echo "Downloading and unpacking the actual ESCI data.  This may take some time, but you should only have to do it once."
-wget https://esci-s.s3.amazonaws.com/esci.json.zst
-echo "Decompressing esci.json.zst"
-zstd -d esci.json.zst
-echo "Splitting esci.json"
-split -l 100000  esci.json esci.json.split.
-
-echo "Cleaning up"
-rm esci.json.zst
+cd /workspace/datasets
+# TODO: put in validation checks
+#pip install kaggle
+echo "Downloading Kaggle"
+kaggle competitions download -c acm-sf-chapter-hackathon-big
+unzip acm-sf-chapter-hackathon-big.zip
+tar -xf product_data.tar.gz
+echo "Cleaning up to save space:"
+rm acm-sf-chapter-hackathon-big.zip
+rm product_data.tar.gz
+rm popular_skus.csv

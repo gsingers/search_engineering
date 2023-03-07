@@ -29,23 +29,18 @@ You will also find several supporting directories and files for Docker and Gitpo
 
 1. You will need a [Gitpod](https://gitpod.io) account or the ability to run [Docker](https://docker.com) containers.
    1. If running locally, you will want at least 16GB of RAM and 30GB of disk space, with more being better!
+2. For this class, you will need a Kaggle account and a [Kaggle API token](https://www.kaggle.com/docs/api).
 
-# Working in Gitpod (Officially Supported)
+# Downloading the Best Buy Dataset
 
-*NOTE*: The Gitpod free tier comes with 50 hours of use per month.  We expect our work will be done in less time than that.  However, you may wish to conserve time on the platform by being sure to stop your workspace when you are done with it.  Gitpod will time you out (don't worry, your work will be saved), but that may take longer to detect.
+1. Run the install [Kaggle API token](https://www.kaggle.com/docs/api) script and follow the instructions:
 
-The following things must be done each time you create a new Gitpod Workspace (unfortunately, we can't automate this)
+        ./install-kaggle-token.sh
+2. 
+1. Accept *all* of the [kaggle competition rules](https://www.kaggle.com/c/acm-sf-chapter-hackathon-big/rules) then run the download data script:
 
-1. Fork this repository.
-1. Launch a new Gitpod workspace based on this repository.  
-    
-1. Start the OpenSearch instance associated with the week you are working on, e.g.:
-   1. `cd docker`
-   2. `docker-compose -f docker-compose-w1.yml up`
-1. You should now have a running Opensearch instance (port 9200) and a running Opensearch Dashboards instance (port 5601)
-1. Login to the dashboards at `https://5601-<$GITPOD_URL>/` with default username `admin` and password `admin`. This should popup automatically as a new tab, unless you have blocked popups.  Also note, that in the real world, you would change your password.  Since these ports are blocked if you aren't logged into Gitpod, it's OK.
+        ./download-data.sh
 
-        $GITPOD_URL is a placeholder for your ephemeral Gitpod host name, e.g. silver-grasshopper-8czadqyn.ws-us25.gitpod.io
 
 # Working in Docker (Officially Supported)
 
@@ -69,6 +64,26 @@ while also allowing for local file editing.
    4. Detached: `docker run -v ~/projects/corise/search_engineering/search_engineering:/workspace/search_engineering -v ~/projects/corise/search_engineering/datasets:/workspace/datasets --network docker_opensearch-net --name search_engineering -d gsingers/search_engineering:latest`
       5. If you run detached, you will need to exec into the instance
 6. Once in your Docker instance, you can proceed as required by the project with downloading the data, etc.  Note: you may want to download the data natively into the `datasets` directory, as doing it through Docker can be quite slow
+
+
+# Working in Gitpod (Officially Supported)
+
+*NOTE*: The Gitpod free tier comes with 50 hours of use per month.  We expect our work will be done in less time than that.  However, you may wish to conserve time on the platform by being sure to stop your workspace when you are done with it.  Gitpod will time you out (don't worry, your work will be saved), but that may take longer to detect.
+*NOTE*: Gitpod is not optimal for things like scaling out a search cluster.  We will note in the content when this is the case, even though it should still work.
+
+The following things must be done each time you create a new Gitpod Workspace (unfortunately, we can't automate this)
+
+1. Fork this repository.
+1. Launch a new Gitpod workspace based on this repository.  
+    
+1. Start the OpenSearch instance associated with the week you are working on, e.g.:
+   1. `cd docker`
+   2. `docker-compose -f docker-compose-w1.yml up`
+1. You should now have a running Opensearch instance (port 9200) and a running Opensearch Dashboards instance (port 5601)
+1. Login to the dashboards at `https://5601-<$GITPOD_URL>/` with default username `admin` and password `admin`. This should popup automatically as a new tab, unless you have blocked popups.  Also note, that in the real world, you would change your password.  Since these ports are blocked if you aren't logged into Gitpod, it's OK.
+
+        $GITPOD_URL is a placeholder for your ephemeral Gitpod host name, e.g. silver-grasshopper-8czadqyn.ws-us25.gitpod.io
+
     
 
 # Exploring the OpenSearch Sample Dashboards and Data

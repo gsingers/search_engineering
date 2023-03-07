@@ -5,3 +5,4 @@ urljoin
 pandas
 fastparquet
 click
+lxml
