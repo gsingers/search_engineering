@@ -56,7 +56,7 @@ NOTE: If you are on a Mac, you will probably want to enable the `VirtioFS` optio
 Our basic setup will be to run the Gitpod dockerfile (published as `gsingers/search_engineering` on Docker Hub, with the appropriate networking and volume mounts to provide a standard dev environment
 while also allowing for local file editing.
 
-1. Create a "parent" directory somewhere on your filesystem, such as `~/projects/corise/search_engineering` and change into that directory
+1. Create a "parent" directory somewhere on your local filesystem, such as `~/projects/corise/search_engineering` and change into that directory
    2. Git clone this repository underneath that directory
    3. `mkdir datasets` 
 2. Run docker by attaching volumes for the repo and the dataset: 
@@ -75,22 +75,41 @@ The following things must be done each time you create a new Gitpod Workspace (u
 
 1. Fork this repository.
 1. Launch a new Gitpod workspace based on this repository.  
-    
-1. Start the OpenSearch instance associated with the week you are working on, e.g.:
-   1. `cd docker`
+
+
+
+# Starting OpenSearch
+                     
+
+1. `cd /workspace/search_engineering/docker`
+2. Start the OpenSearch instance associated with the week you are working on, e.g.:
    2. `docker-compose -f docker-compose-w1.yml up`
 1. You should now have a running Opensearch instance (port 9200) and a running Opensearch Dashboards instance (port 5601)
-1. Login to the dashboards at `https://5601-<$GITPOD_URL>/` with default username `admin` and password `admin`. This should popup automatically as a new tab, unless you have blocked popups.  Also note, that in the real world, you would change your password.  Since these ports are blocked if you aren't logged into Gitpod, it's OK.
+1. Login to the dashboards at `https://5601-<$GITPOD_URL>/` or `https://localhost:5601` (if running locally) with default username `admin` and password `admin`. This should popup automatically as a new tab, unless you have blocked popups.  Also note, that in the real world, you would change your password.  Since these ports are blocked if you aren't logged into Gitpod, it's OK.
 
         $GITPOD_URL is a placeholder for your ephemeral Gitpod host name, e.g. silver-grasshopper-8czadqyn.ws-us25.gitpod.io
 
-    
+
+
 
 # Exploring the OpenSearch Sample Dashboards and Data
 
-1. Login to OpenSearch and point your browser at `https://5601-<$GITPOD_URL>/app/opensearch_dashboards_overview#/`
+1. Login to OpenSearch and point your browser at `https://5601-<$GITPOD_URL>/app/opensearch_dashboards_overview#/` (or `https://localhost:5601`)
 1. Click the "Add sample data" link
 1. Click the "Add Data" link for any of the 3 projects listed. In the class, we chose the "Sample flight data", but any of the three are fine for exploration.
+
+
+
+# Indexing the Best Buy Data
+
+After you have installed your Kaggle token and downloaded the data, it's time to index it.  Complete the following steps from the command line:
+
+1. Gitpod Install:
+   2. `pyenv activate search_eng` 
+   2. `./index-data.sh`
+2. Local Install:
+   3. `./index-data.sh -o opensearch-node1`
+
 
 # Running the Weekly Project
 

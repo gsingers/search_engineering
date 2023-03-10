@@ -59,3 +59,12 @@ GET /shard_3/_search_shards
 GET /shard_3/_search?q=fox&preference=_shards:0
 GET /shard_3/_search?q=fox&preference=_shards:1
 GET /shard_3/_search?q=fox&preference=_shards:2
+
+
+#Update number of replicas
+PUT /shard_3/_settings
+{
+  "index": {
+    "number_of_replicas": 3
+  }
+}
