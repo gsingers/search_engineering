@@ -6,7 +6,7 @@ services:
     environment:
       - discovery.type=single-node
       - http.max_content_length=1000mb
-      - "OPENSEARCH_JAVA_OPTS=-Xms2G -Xmx2G"
+      - "OPENSEARCH_JAVA_OPTS=-Xms4G -Xmx4G"
     ulimits:
       nofile:
         soft: 65536 # maximum number of open files for the OpenSearch user, set to at least 65536 on modern systems

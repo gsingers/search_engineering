@@ -61,8 +61,6 @@ while also allowing for local file editing.
    3. `mkdir datasets` 
 2. Run docker by attaching volumes for the repo and the dataset: 
    3. Interactive: `docker run -v <PATH TO WHERE YOU CLONED THIS REPO>:/workspace/search_engineering -v ~/projects/corise/search_engineering/datasets:/workspace/datasets --network docker_opensearch-net --name search_engineering -it gsingers/search_engineering:latest`
-   4. Detached: `docker run -v ~/projects/corise/search_engineering/search_engineering:/workspace/search_engineering -v ~/projects/corise/search_engineering/datasets:/workspace/datasets --network docker_opensearch-net --name search_engineering -d gsingers/search_engineering:latest`
-      5. If you run detached, you will need to exec into the instance
 6. Once in your Docker instance, you can proceed as required by the project with downloading the data, etc.  Note: you may want to download the data natively into the `datasets` directory, as doing it through Docker can be quite slow
 
 

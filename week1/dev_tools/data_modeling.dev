@@ -1,1 +1,16 @@
 GET /bbuy_products/_mapping
+
+GET /bbuy_products/_search
+{
+  "query": {
+    "match_all": {}
+  }
+  , "aggs": {
+    "agg_text": {
+      "terms": {
+        "field": "accessories",
+        "size": 10
+      }
+    }
+  }
+}

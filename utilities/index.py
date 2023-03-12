@@ -150,6 +150,9 @@ def main(source_dir: str, index_name: str, workers: int, host: str, max_docs: in
         futures = [executor.submit(index_file, file, index_name, host, max_docs) for file in files]
         for future in concurrent.futures.as_completed(futures):
             docs_indexed += future.result()
+            if docs_indexed >= max_docs * workers:
+                logger.info("Breaking out of file loop, as we've reached our limit of docs")
+                break
 
     finish = perf_counter()
     logger.info(f'Done. Total docs: {docs_indexed} in {(finish - start)/60} minutes')
