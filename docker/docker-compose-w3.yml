@@ -10,7 +10,7 @@
 version: '3'
 services:
   opensearch-manager1:
-    image: opensearchproject/opensearch:2.5.0
+    image: opensearchproject/opensearch:2.6.0
     container_name: opensearch-manager1
     environment:
       - cluster.name=opensearch-cluster
@@ -30,7 +30,7 @@ services:
     networks:
       - opensearch-net
   opensearch-manager2:
-    image: opensearchproject/opensearch:2.5.0
+    image: opensearchproject/opensearch:2.6.0
     container_name: opensearch-manager2
     environment:
       - cluster.name=opensearch-cluster
@@ -50,7 +50,7 @@ services:
     networks:
       - opensearch-net
   opensearch-manager3:
-    image: opensearchproject/opensearch:2.5.0
+    image: opensearchproject/opensearch:2.6.0
     container_name: opensearch-manager3
     environment:
       - cluster.name=opensearch-cluster
@@ -70,7 +70,7 @@ services:
     networks:
       - opensearch-net
   opensearch-node1:
-    image: opensearchproject/opensearch:2.5.0
+    image: opensearchproject/opensearch:2.6.0
     container_name: opensearch-node1
     environment:
       - cluster.name=opensearch-cluster
@@ -93,7 +93,7 @@ services:
     networks:
       - opensearch-net
   opensearch-node2:
-    image: opensearchproject/opensearch:2.5.0
+    image: opensearchproject/opensearch:2.6.0
     container_name: opensearch-node2
     environment:
       - cluster.name=opensearch-cluster
@@ -113,7 +113,7 @@ services:
     networks:
       - opensearch-net
   opensearch-dashboards:
-    image: opensearchproject/opensearch-dashboards:2.5.0
+    image: opensearchproject/opensearch-dashboards:2.6.0
     container_name: opensearch-dashboards
     ports:
       - 5601:5601
