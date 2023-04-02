@@ -36,13 +36,13 @@ You will also find several supporting directories and files for Docker and Gitpo
 1. Run the install [Kaggle API token](https://www.kaggle.com/docs/api) script and follow the instructions:
 
         ./install-kaggle-token.sh
-2. 
-1. Accept *all* of the [kaggle competition rules](https://www.kaggle.com/c/acm-sf-chapter-hackathon-big/rules) then run the download data script:
+2. Accept *both* the overall Kaggle terms (if you've just setup a new Kaggle account) *and* the [kaggle competition rules](https://www.kaggle.com/c/acm-sf-chapter-hackathon-big/rules) for this specific dataset.  If not, you'll get `403 - Forbidden` in the next step.
+3. Run the download data script:
 
         ./download-data.sh
 
 
-# Working in Docker (Officially Supported)
+# Working Locally (Officially Supported)
 
 To run locally or in your own cloud instance using Docker, you will need a few things:
 
@@ -51,7 +51,7 @@ To run locally or in your own cloud instance using Docker, you will need a few t
 2. [cURL](https://curl.se/) and [wget](https://www.gnu.org/software/wget/)
                                                                          
 
-NOTE: If you are on a Mac, you will probably want to enable the `VirtioFS` option for I/O.
+NOTE: If you are on a Mac, you will probably want to enable the `VirtioFS` option for I/O.  Even with that on, file I/O performance is not great. YMMV.
 
 Our basic setup will be to run the Gitpod dockerfile (published as `gsingers/search_engineering` on Docker Hub, with the appropriate networking and volume mounts to provide a standard dev environment
 while also allowing for local file editing.
@@ -59,9 +59,13 @@ while also allowing for local file editing.
 1. Create a "parent" directory somewhere on your local filesystem, such as `~/projects/corise/search_engineering` and change into that directory
    2. Git clone this repository underneath that directory
    3. `mkdir datasets` 
-2. Run docker by attaching volumes for the repo and the dataset: 
+2. You can proceed as required by the project with downloading the data, etc. 
+3. (Optional) Run docker by attaching volumes for the repo and the dataset: 
    3. Interactive: `docker run -v <PATH TO WHERE YOU CLONED THIS REPO>:/workspace/search_engineering -v ~/projects/corise/search_engineering/datasets:/workspace/datasets --network docker_opensearch-net --name search_engineering -it gsingers/search_engineering:latest`
-6. Once in your Docker instance, you can proceed as required by the project with downloading the data, etc.  Note: you may want to download the data natively into the `datasets` directory, as doing it through Docker can be quite slow
+   4. You can also run natively, but our ability to support you will be limited.  If you do, please see the `.gitpod.Dockerfile` for system requirements, Python versions, etc.
+5. If you are running locally, be sure to `pip install` the `requirements.txt` file located in the root directory into a virtual environment running Python 3.9.7.  Again, see `.gitpod.Dockerfile` if you are not sure.
+   
+
 
 
 # Working in Gitpod (Officially Supported)

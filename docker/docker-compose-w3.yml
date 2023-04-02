@@ -1,95 +1,33 @@
-# Opensearch cluster w/ 3 manager nodes, 2 data/ingest nodes, and a dashboard node
+# OpenSearch cluster w/ 3 uniform nodes plus a dashboard node
 # Needs minimum ~ 5 GB RAM on the host
 
-# TODO: leave ports as is?
-# TODO: add healthcheck and depends_on dashboard -> nodes -> managers
-# TODO: why are containers using so much mem? 700-800MB for managers, 1G for data nodes.
-# Verified the Xmx heap options ARE taking effect based on 'heap size' log message
-# TODO: Disable un-needed plugins?
+# NOTE: We use a few configuration anti-patterns here to make this work in environments
+# where you don't control the underlying host (GitPod, docker-in-docker, etc.).  These
+# are indicated by "AP:" in the comment.  See the week 3 appendix of the class for more info.
+# Don't use these "AP:" settings in a real OpenSearch environment!
 
 version: '3'
 services:
-  opensearch-manager1:
-    image: opensearchproject/opensearch:2.6.0
-    container_name: opensearch-manager1
-    environment:
-      - cluster.name=opensearch-cluster
-      - node.name=opensearch-manager1
-      - node.roles=cluster_manager
-      - discovery.seed_hosts=opensearch-manager1,opensearch-manager2,opensearch-manager3
-      - cluster.initial_master_nodes=opensearch-manager1,opensearch-manager2,opensearch-manager3
-      - bootstrap.memory_lock=false # so memlock bootstrap check will pass - since we can't memlock unlimited on GitPod
-      - node.store.allow_mmap=false # so vm.max_map_count bootstrap check will pass - but don't do in prod it degrades perf
-      - "OPENSEARCH_JAVA_OPTS=-Xms256m -Xmx256m"
-    ulimits:
-      nofile:
-        soft: 65536
-        hard: 65536
-    volumes:
-      - opensearch-data1:/usr/share/opensearch/data
-    networks:
-      - opensearch-net
-  opensearch-manager2:
-    image: opensearchproject/opensearch:2.6.0
-    container_name: opensearch-manager2
-    environment:
-      - cluster.name=opensearch-cluster
-      - node.name=opensearch-manager2
-      - node.roles=cluster_manager
-      - discovery.seed_hosts=opensearch-manager1,opensearch-manager2,opensearch-manager3
-      - cluster.initial_master_nodes=opensearch-manager1,opensearch-manager2,opensearch-manager3
-      - bootstrap.memory_lock=false # so memlock bootstrap check will pass - since we can't memlock unlimited on GitPod
-      - node.store.allow_mmap=false # so vm.max_map_count bootstrap check will pass - but don't do in prod it degrades perf
-      - "OPENSEARCH_JAVA_OPTS=-Xms256m -Xmx256m"
-    ulimits:
-      nofile:
-        soft: 65536
-        hard: 65536
-    volumes:
-      - opensearch-data2:/usr/share/opensearch/data
-    networks:
-      - opensearch-net
-  opensearch-manager3:
-    image: opensearchproject/opensearch:2.6.0
-    container_name: opensearch-manager3
-    environment:
-      - cluster.name=opensearch-cluster
-      - node.name=opensearch-manager3
-      - node.roles=cluster_manager
-      - discovery.seed_hosts=opensearch-manager1,opensearch-manager2,opensearch-manager3
-      - cluster.initial_master_nodes=opensearch-manager1,opensearch-manager2,opensearch-manager3
-      - bootstrap.memory_lock=false # so memlock bootstrap check will pass - since we can't memlock unlimited on GitPod
-      - node.store.allow_mmap=false # so vm.max_map_count bootstrap check will pass - but don't do in prod it degrades perf
-      - "OPENSEARCH_JAVA_OPTS=-Xms256m -Xmx256m"
-    ulimits:
-      nofile:
-        soft: 65536
-        hard: 65536
-    volumes:
-      - opensearch-data3:/usr/share/opensearch/data
-    networks:
-      - opensearch-net
   opensearch-node1:
     image: opensearchproject/opensearch:2.6.0
     container_name: opensearch-node1
-    environment:
-      - cluster.name=opensearch-cluster
-      - node.name=opensearch-node1
-      - node.roles=data,ingest
-      - discovery.seed_hosts=opensearch-manager1,opensearch-manager2,opensearch-manager3
-      - cluster.initial_master_nodes=opensearch-manager1,opensearch-manager2,opensearch-manager3
-      - bootstrap.memory_lock=false # so memlock bootstrap check will pass - since we can't memlock unlimited on GitPod
-      - node.store.allow_mmap=false # so vm.max_map_count bootstrap check will pass - but don't do in prod it degrades perf
-      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m" # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
-    ulimits:
-      nofile:
-        soft: 65536 # maximum number of open files for the OpenSearch user, set to at least 65536 on modern systems
-        hard: 65536
-    volumes:
-      - opensearch-data4:/usr/share/opensearch/data
     ports:
       - 9200:9200
       - 9600:9600 # required for Performance Analyzer
+    environment:
+      - cluster.name=opensearch-cluster
+      - node.name=opensearch-node1
+      - discovery.seed_hosts=opensearch-node1,opensearch-node2,opensearch-node3
+      - cluster.initial_master_nodes=opensearch-node1,opensearch-node2,opensearch-node3
+      - bootstrap.memory_lock=false # AP: so memlock bootstrap check will pass - since we can't memlock unlimited on GitPod
+      - node.store.allow_mmap=false # AP: so vm.max_map_count bootstrap check will pass - but don't do in prod it degrades perf
+      - "OPENSEARCH_JAVA_OPTS=-Xms1G -Xmx1G"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - search-eng-week3-d1:/usr/share/opensearch/data
     networks:
       - opensearch-net
   opensearch-node2:
@@ -98,18 +36,36 @@ services:
     environment:
       - cluster.name=opensearch-cluster
       - node.name=opensearch-node2
-      - node.roles=data,ingest
-      - discovery.seed_hosts=opensearch-manager1,opensearch-manager2,opensearch-manager3
-      - cluster.initial_master_nodes=opensearch-manager1,opensearch-manager2,opensearch-manager3
-      - bootstrap.memory_lock=false # so memlock bootstrap check will pass - since we can't memlock unlimited on GitPod
-      - node.store.allow_mmap=false # so vm.max_map_count bootstrap check will pass - but don't do in prod it degrades perf
-      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.seed_hosts=opensearch-node1,opensearch-node2,opensearch-node3
+      - cluster.initial_master_nodes=opensearch-node1,opensearch-node2,opensearch-node3
+      - bootstrap.memory_lock=false # AP: so memlock bootstrap check will pass - since we can't memlock unlimited on GitPod
+      - node.store.allow_mmap=false # AP: so vm.max_map_count bootstrap check will pass - but don't do in prod it degrades perf
+      - "OPENSEARCH_JAVA_OPTS=-Xms1G -Xmx1G"
     ulimits:
       nofile:
         soft: 65536
         hard: 65536
     volumes:
-      - opensearch-data5:/usr/share/opensearch/data
+      - search-eng-week3-d2:/usr/share/opensearch/data
+    networks:
+      - opensearch-net
+  opensearch-node3:
+    image: opensearchproject/opensearch:2.6.0
+    container_name: opensearch-node3
+    environment:
+      - cluster.name=opensearch-cluster
+      - node.name=opensearch-node3
+      - discovery.seed_hosts=opensearch-node1,opensearch-node2,opensearch-node3
+      - cluster.initial_master_nodes=opensearch-node1,opensearch-node2,opensearch-node3
+      - bootstrap.memory_lock=false # AP: so memlock bootstrap check will pass - since we can't memlock unlimited on GitPod
+      - node.store.allow_mmap=false # AP: so vm.max_map_count bootstrap check will pass - but don't do in prod it degrades perf
+      - "OPENSEARCH_JAVA_OPTS=-Xms1G -Xmx1G"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - search-eng-week3-d3:/usr/share/opensearch/data
     networks:
       - opensearch-net
   opensearch-dashboards:
@@ -120,16 +76,14 @@ services:
     expose:
       - "5601"
     environment:
-      OPENSEARCH_HOSTS: '["https://opensearch-node1:9200","https://opensearch-node2:9200"]'
+      OPENSEARCH_HOSTS: '["https://opensearch-node1:9200","https://opensearch-node2:9200","https://opensearch-node3:9200"]'
     networks:
       - opensearch-net
 
 volumes:
-  opensearch-data1:
-  opensearch-data2:
-  opensearch-data3:
-  opensearch-data4:
-  opensearch-data5:
+  search-eng-week3-d1:
+  search-eng-week3-d2:
+  search-eng-week3-d3:
 
 networks:
   opensearch-net:

@@ -27,61 +27,64 @@ mappings = {
     "productId": "productId/text()",
     "name": "name/text()",
     "type":"type/text()",
-    "startDate": "startDate/text()",
-    "active": "active/text()",
-    "regularPrice": "regularPrice/text()",
-    "salePrice": "salePrice/text()",
     "shortDescription": "shortDescription/text()",
-    "shortDescriptionHtml": "shortDescriptionHtml/text()",
-    "longDescription": "longDescription/text()",
-    "longDescriptionHtml": "longDescriptionHtml/text()",
-    "artistName": "artistName/text()",
-    "onSale": "onSale/text()",
-    "digital": "digital/text()",
-    "frequentlyPurchasedWith": "frequentlyPurchasedWith/*/text()",  # Note the match all here to get the subfields
-    "accessories": "accessories/*/text()" ,  # Note the match all here to get the subfields
-    "relatedProducts": "relatedProducts/*/text()",  # Note the match all here to get the subfields
-    "crossSell": "crossSell/text()",
-    "salesRankShortTerm": "salesRankShortTerm/text()",
-    "salesRankMediumTerm": "salesRankMediumTerm/text()",
-    "salesRankLongTerm": "salesRankLongTerm/text()",
-    "bestSellingRank": "bestSellingRank/text()",
-    "url": "url/text()",
-    "categoryPath": "categoryPath/*/name/text()",  # Note the match all here to get the subfields
-    "categoryPathIds": "categoryPath/*/id/text()",  # Note the match all here to get the subfields
-    "categoryLeaf": "categoryPath/category[last()]/id/text()",
-    "categoryPathCount": "count(categoryPath/*/name)",
-    "customerReviewCount": "customerReviewCount/text()",
-    "customerReviewAverage": "customerReviewAverage/text()",
-    "inStoreAvailability": "inStoreAvailability/text()",
-    "onlineAvailability": "onlineAvailability/text()",
-    "releaseDate": "releaseDate/text()",
-    "shippingCost": "shippingCost/text()",
-    "class": "class/text()",
-    "classId": "classId/text()",
-    "subclass": "subclass/text()",
-    "subclassId": "subclassId/text()",
-    "department": "department/text()",
-    "departmentId": "departmentId/text()",
-    "bestBuyItemId": "bestBuyItemId/text()",
-    "description": "description/text()",
-    "manufacturer": "manufacturer/text()",
-    "modelNumber": "modelNumber/text()",
-    "image": "image/text()",
-    "condition": "condition/text()",
-    "inStorePickup": "inStorePickup/text()",
-    "homeDelivery": "homeDelivery/text()",
-    "quantityLimit": "quantityLimit/text()",
-    "color": "color/text()",
-    "depth": "depth/text()",
-    "height": "height/text()",
-    "weight": "weight/text()",
-    "shippingWeight": "shippingWeight/text()",
-    "width": "width/text()",
-    "features": "features/*/text()"  # Note the match all here to get the subfields
-
-    
+    "startDate": "startDate/text()",
 }
+'''
+"startDate": "startDate/text()",
+"active": "active/text()",
+"regularPrice": "regularPrice/text()",
+"salePrice": "salePrice/text()",
+"shortDescription": "shortDescription/text()",
+"shortDescriptionHtml": "shortDescriptionHtml/text()",
+"longDescription": "longDescription/text()",
+"longDescriptionHtml": "longDescriptionHtml/text()",
+"artistName": "artistName/text()",
+"onSale": "onSale/text()",
+"digital": "digital/text()",
+"frequentlyPurchasedWith": "frequentlyPurchasedWith/*/text()",  # Note the match all here to get the subfields
+"accessories": "accessories/*/text()" ,  # Note the match all here to get the subfields
+"relatedProducts": "relatedProducts/*/text()",  # Note the match all here to get the subfields
+"crossSell": "crossSell/text()",
+"salesRankShortTerm": "salesRankShortTerm/text()",
+"salesRankMediumTerm": "salesRankMediumTerm/text()",
+"salesRankLongTerm": "salesRankLongTerm/text()",
+"bestSellingRank": "bestSellingRank/text()",
+"url": "url/text()",
+"categoryPath": "categoryPath/*/name/text()",  # Note the match all here to get the subfields
+"categoryPathIds": "categoryPath/*/id/text()",  # Note the match all here to get the subfields
+"categoryLeaf": "categoryPath/category[last()]/id/text()",
+"categoryPathCount": "count(categoryPath/*/name)",
+"customerReviewCount": "customerReviewCount/text()",
+"customerReviewAverage": "customerReviewAverage/text()",
+"inStoreAvailability": "inStoreAvailability/text()",
+"onlineAvailability": "onlineAvailability/text()",
+"releaseDate": "releaseDate/text()",
+"shippingCost": "shippingCost/text()",
+"class": "class/text()",
+"classId": "classId/text()",
+"subclass": "subclass/text()",
+"subclassId": "subclassId/text()",
+"department": "department/text()",
+"departmentId": "departmentId/text()",
+"bestBuyItemId": "bestBuyItemId/text()",
+"description": "description/text()",
+"manufacturer": "manufacturer/text()",
+"modelNumber": "modelNumber/text()",
+"image": "image/text()",
+"condition": "condition/text()",
+"inStorePickup": "inStorePickup/text()",
+"homeDelivery": "homeDelivery/text()",
+"quantityLimit": "quantityLimit/text()",
+"color": "color/text()",
+"depth": "depth/text()",
+"height": "height/text()",
+"weight": "weight/text()",
+"shippingWeight": "shippingWeight/text()",
+"width": "width/text()",
+"features": "features/*/text()"  # Note the match all here to get the subfields
+
+'''
 
 def get_opensearch(the_host="localhost"):
     host = the_host
@@ -127,14 +130,14 @@ def index_file(file, index_name, host="localhost", max_docs=2000000, batch_size=
         docs_indexed += 1
         if docs_indexed % batch_size == 0:
             start = perf_counter()
-            bulk(client, docs, request_timeout=60)
+            bulk(client, docs, request_timeout=120)
             stop = perf_counter()
             time_indexing += (stop - start)
             docs = []
     if len(docs) > 0:
         logger.debug("Sending final batch of docs")
         start = perf_counter()
-        bulk(client, docs, request_timeout=60)
+        bulk(client, docs, request_timeout=120)
         stop = perf_counter()
         time_indexing += (stop - start)
     logger.debug(f'{docs_indexed} documents indexed in {time_indexing}')
@@ -149,14 +152,18 @@ def index_file(file, index_name, host="localhost", max_docs=2000000, batch_size=
 @click.option('--host', '-o', default="localhost", help="The name of the host running OpenSearch")
 @click.option('--max_docs', '-m', default=200000, help="The maximum number of docs to be indexed PER WORKER PER FILE.")
 @click.option('--batch_size', '-b', default=200, help="The number of docs to send per request. Max of 5000")
-def main(source_dir: str, file_glob: str, index_name: str, workers: int, host: str, max_docs: int, batch_size: int):
+@click.option('--refresh_interval', '-r', default="-1", help="The number of docs to send per request. Max of 5000")
+def main(source_dir: str, file_glob: str, index_name: str, workers: int, host: str, max_docs: int, batch_size: int, refresh_interval: str):
     batch_size = min(batch_size, 5000)  # I believe this is the default max batch size, but need to find docs on that
     logger.info(
-        f"Indexing {source_dir} to {index_name} with {workers} workers to host {host} with a maximum number of docs sent per worker of {max_docs} and {batch_size} per batch.")
+        f"Indexing {source_dir} to {index_name} with {workers} workers, refresh_interval of {refresh_interval} to host {host} with a maximum number of docs sent per file per worker of {max_docs} and {batch_size} per batch.")
     files = glob.glob(source_dir + "/" + file_glob)
     docs_indexed = 0
     # Set refresh interval to -1
     client = get_opensearch(host)
+
+    # Set index refresh interval here before indexing
+
     logger.debug(client.indices.get_settings(index=index_name))
     start = perf_counter()
     time_indexing = 0
@@ -169,6 +176,15 @@ def main(source_dir: str, file_glob: str, index_name: str, workers: int, host: s
 
     finish = perf_counter()
     logger.info(f'Done. {docs_indexed} were indexed in {(finish - start)/60} minutes.  Total accumulated time spent in `bulk` indexing: {time_indexing/60} minutes')
+    # set refresh interval back to 5s
+    refresh_settings = {
+        'settings': {
+            'index': {
+                'refresh_interval': "5s"
+            }
+        }
+    }
+    client.indices.put_settings(index = index_name, body= refresh_settings)
     logger.debug(client.indices.get_settings(index=index_name))
 
 if __name__ == "__main__":

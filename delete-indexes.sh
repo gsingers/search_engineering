@@ -21,7 +21,7 @@ shift $((OPTIND -1))
 
 echo "Deleting Products"
 set -x
-curl -k -X DELETE -u admin  "https://$HOST:9200/bbuy_products"
+curl -k -X DELETE -u admin:admin  "https://$HOST:9200/bbuy_products"
 if [ $? -ne 0 ] ; then
   echo "Failed to delete products index"
   exit 2
