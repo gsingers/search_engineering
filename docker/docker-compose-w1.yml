@@ -33,5 +33,7 @@ services:
 volumes:
   search-eng-week1:
 
+# explicitly set name, otherwise the docker network name is prepended with the folder (project) name
 networks:
   opensearch-net:
+    name: opensearch-net

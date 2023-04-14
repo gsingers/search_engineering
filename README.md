@@ -61,7 +61,7 @@ while also allowing for local file editing.
    3. `mkdir datasets` 
 2. You can proceed as required by the project with downloading the data, etc. 
 3. (Optional) Run docker by attaching volumes for the repo and the dataset: 
-   3. Interactive: `docker run -v <PATH TO WHERE YOU CLONED THIS REPO>:/workspace/search_engineering -v ~/projects/corise/search_engineering/datasets:/workspace/datasets --network docker_opensearch-net --name search_engineering -it gsingers/search_engineering:latest`
+   3. Interactive: `docker run -v <PATH TO WHERE YOU CLONED THIS REPO>:/workspace/search_engineering -v ~/projects/corise/search_engineering/datasets:/workspace/datasets --network opensearch-net --name search_engineering -it gsingers/search_engineering:latest`
    4. You can also run natively, but our ability to support you will be limited.  If you do, please see the `.gitpod.Dockerfile` for system requirements, Python versions, etc.
 5. If you are running locally, be sure to `pip install` the `requirements.txt` file located in the root directory into a virtual environment running Python 3.9.7.  Again, see `.gitpod.Dockerfile` if you are not sure.
    

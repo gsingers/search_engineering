@@ -6,3 +6,4 @@ pandas
 fastparquet
 click
 lxml
+kaggle
