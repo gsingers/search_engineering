@@ -1,0 +1,92 @@
+# Docker Compose for running Prometheus and Grafana to store/visualize metrics from our OpenSearch nodes
+# Run this along side of (in addition to) the docker-compose-wX files
+#
+# Prereq: Requires the Prometheus Exporter for OpenSearch be installed on ALL OpenSearch nodes
+#         https://github.com/aiven/prometheus-exporter-plugin-for-opensearch#install-or-remove-plugin
+# 
+# Run this against each OpenSearch container that you are running:
+# docker exec -t opensearch-node1 ./bin/opensearch-plugin install https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/2.6.0.0/prometheus-exporter-2.6.0.0.zip
+# 
+# Understanding the 3 pieces that make this work:
+# 1) The Prometheus Exporter Plugin exposes metrics on a new endpoint (/_prometheus/metrics) on the OpenSearch instance
+# 2) Prometheus container scrapes those metrics (configs in ./prometheus/prometheus.yml)
+# 3) Point to Grafana on http://localhost:3000 to visualize metrics
+
+version: '1'
+
+volumes:
+    prometheus-data: 
+    grafana-data: 
+
+# explicitly set name, otherwise the docker network name is prepended with the folder (project) name
+networks:
+  opensearch-net:
+    name: opensearch-net
+    external: true
+
+services:
+
+  prometheus:
+    image: prom/prometheus:v2.43.0
+    container_name: prometheus
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - 9090:9090
+    depends_on:
+      - cadvisor
+    networks:
+      - opensearch-net
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:9.4.7
+    container_name: grafana
+    user: "472"
+    depends_on:
+      - prometheus
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+    env_file:
+      - ./grafana/config.monitoring
+    networks:
+      - opensearch-net
+    restart: unless-stopped
+
+  # cadvisor to collect container stats and expose Prometheus compatible endpoint
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.1
+    container_name: cadvisor
+    privileged: true
+    command:
+      # trim down the metrics to just what we need
+      - '--enable_metrics=cpu,cpuLoad,diskIO,memory,network'
+      - '--docker_only=true'
+      # docker image labels can blow up the size of the metric output
+      - '--store_container_labels=false'
+      # reduce log spam don't try to read /etc/machine_id every 5 min
+      - '--update_machine_info_interval=1h'
+      # this caused too much log chatter:  Error getting data for container / because of race condition
+      #- '--disable_root_cgroup_stats=true'
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - 8080:8080
+    networks:
+      - opensearch-net
+    restart: unless-stopped
+    deploy:
+      mode: global

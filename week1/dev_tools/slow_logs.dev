@@ -1,0 +1,64 @@
+PUT bbuy_products/_settings
+{
+  "indexing": {
+    "slowlog": {
+      "threshold": {
+        "index": {
+          "warn": "15s",
+          "trace": "750ms",
+          "debug": "3s",
+          "info": "10s"
+        }
+      },
+      "source": "500",
+      "level": "INFO"
+    }
+  }
+}
+
+PUT bbuy_products/_settings
+{
+  "search": {
+    "slowlog": {
+      "threshold": {
+        "fetch": {
+          "warn": "15s",
+          "trace": "10ms",
+          "debug": "3s",
+          "info": "10s"
+        },
+        "query": {
+          "warn": "15s",
+          "trace": "10ms",
+          "debug": "3s",
+          "info": "10s"
+        }
+      },
+      "level": "TRACE"
+    }
+  }
+}
+
+
+PUT bbuy_products/_settings
+{
+  "search": {
+    "slowlog": {
+      "threshold": {
+        "fetch": {
+          "warn": "-1",
+          "trace": "-1",
+          "debug": "-1",
+          "info": "-1"
+        },
+        "query": {
+          "warn": "-1",
+          "trace": "-1",
+          "debug": "-1",
+          "info": "-1"
+        }
+      },
+      "level": "TRACE"
+    }
+  }
+}

@@ -1,0 +1,54 @@
+# my global config
+global:
+  scrape_interval:     15s # By default, scrape targets every 15 seconds.
+  evaluation_interval: 15s # By default, scrape targets every 15 seconds.
+  # scrape_timeout is set to the global default (10s).
+
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+      monitor: 'OpenSearch'
+
+# Load and evaluate rules in this file every 'evaluation_interval' seconds.
+rule_files:
+#  - 'alert.rules'
+
+# alert
+#alerting:
+  #alertmanagers:
+  #- scheme: http
+    #static_configs:
+    #- targets:
+      #- "alertmanager:9093"
+
+# A scrape configuration containing exactly one endpoint to scrape:
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+
+  - job_name: os
+
+    basic_auth:
+      username: admin
+      password: admin
+
+    # OpenSearch exporter is not on the default Prometheus "/metrics" URI path
+    metrics_path: /_prometheus/metrics
+    scheme: https
+    # ignore that the cert common name doesn't match the hostname
+    tls_config:
+      insecure_skip_verify: true
+
+    static_configs:
+      # TODO: could we use dynamic service discovery here w/ Docker container labels?
+      # https://prometheus.io/docs/prometheus/latest/configuration/configuration/#docker_sd_config
+      - targets:
+          - "opensearch-node1:9200"
+          - "opensearch-node2:9200"
+          - "opensearch-node3:9200"
+
+  - job_name: cadvisor
+
+    scrape_interval: 15s
+
+    static_configs:
+      - targets: ['cadvisor:8080']
