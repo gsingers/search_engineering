@@ -11,14 +11,14 @@ Observing metrics, both OpenSearch internal and external host metrics, can help 
 
 ## Setup
 
-### One-time
+### First Time Setup
 The first time you spin up an OpenSearch container (for W1, W2, etc), you'll need to install the Prometheus Exporter Plugin to that OpenSearch instance(s).  Run this against *EVERY* OpenSearch node that you are running:
 ```
 docker exec -t opensearch-node1 ./bin/opensearch-plugin install https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/2.6.0.0/prometheus-exporter-2.6.0.0.zip
 ```
 Restart the OpenSearch node for the plugin install to take effect.
 
-### Start the metrics stack
+### Start the Metrics Stack
 Whenever you want to gather or look at metrics, just compose up:
 
 ```
@@ -36,17 +36,23 @@ You might want to stop (`docker compose down`) the stack when you don't need it.
 
 ## Troubleshooting
 
-1. Is the OpenSearch plugin installed?
+1. Did you restart the OpenSearch node after installing the plugin?
+```
+docker compose -f <docker-compose-file> restart opensearch-nodeX
+```
+
+2. Is the OpenSearch plugin listed?  You should see `prometheus-exporter` in the plugin list.  If not, try the install command again and restart the container (step #1).
 ```
 GET _cat/plugins?v
 ```
-Should show `prometheus-exporter` in the list.
-
-
-2. Did you restart the OpenSearch node after installing the plugin?
 
 3. Are the Prometheus targets showing a State of "Up"?
 ```
 http://localhost:9090/targets
 ```
-This shows each "target" - basically each job that Prometheus is running to scrape metrics data from the targets.  If they aren't in a green "Up" state, there will be a red error message indicating why.
+This shows each "target" - basically each job that Prometheus is running to scrape metrics data from the targets.  If they aren't in a green "Up" state, there will be a red error message indicating why.  **NOTE** that for W1 and W2 we only have a single OpenSearch node, so it's expected that the targets for node2 and node3 will be red.
+
+## References
+- cadvisor [Container metrics reference](https://github.com/google/cadvisor/blob/master/docs/storage/prometheus.md)
+- [Prometheus query example](https://prometheus.io/docs/prometheus/latest/querying/examples/)
+- [Grafana dashboards](https://grafana.com/docs/grafana/latest/dashboards/)
