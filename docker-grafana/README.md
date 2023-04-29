@@ -1,33 +1,31 @@
 # Metrics stack for observing OpenSearch
 
-Observing metrics, both OpenSearch internal and external host metrics, can help you gain intuition for how OpenSearch works.  Here we provision a metrics system (Prometheus) to gather metrics and store time-series metrics, Grafana to visualize them, and a pre-built dashboard for OpenSearch.
+Observing metrics, both about OpenSearch internals and host resource usage, can help you gain intuition for how OpenSearch works.  Here we provision a metrics system (Prometheus) to gather and store time-series metrics, Grafana to visualize them, and a pre-built dashboard for OpenSearch.
 
 ## The Pieces
 1. The [Prometheus Exporter Plugin](https://github.com/aiven/prometheus-exporter-plugin-for-opensearch)
  adds the `/_prometheus/metrics` URI to the OpenSearch HTTP endpoint, and exposes metrics about OpenSearch internals in a Prometheus compatible format.
 2. The [cadvisor](https://github.com/google/cadvisor) container exposes container metrics (CPU, Mem, Network I/O)
 3. The Prometheus container scrapes those metrics (configs are in `./prometheus/prometheus.yml`) and stores in Prometheus DB.
-4. The Grafana container exposes Grafana on http://localhost:3000 to visualize the metrics.  We provide a pre-built dashboard.
+4. The Grafana container exposes Grafana on http://localhost:3000 to visualize the metrics.  We provide a pre-built dashboard which is defined in `grafana/provisioning/dashboards/opensearch-prometheus.yml`.
 
 ## Setup
 
 ### First Time Setup
-The first time you spin up an OpenSearch container (for W1, W2, etc), you'll need to install the Prometheus Exporter Plugin into that OpenSearch instance(s).  Run this against *EVERY* OpenSearch node that you are running (adjust the container name as needed):
-```
-docker exec -t opensearch-node1 ./bin/opensearch-plugin install https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/2.6.0.0/prometheus-exporter-2.6.0.0.zip
-```
-Restart each of the OpenSearch node(s) for the plugin install to take effect (adjusting the filename and container name as needed).  Note that just Ctrl-C stopping the containers seems to interfere with the plugin install.  So we're doing a `restart` here instead:
-```
-docker compose -f docker-compose-w2.yml restart opensearch-node1
-```
-Make sure the plugin shows in the list of installed plugins:
-```
-docker exec -t opensearch-node1 ./bin/opensearch-plugin list
-```
-  ... or by querying the CAT API:
-```
-GET /_cat/plugins?v
-```
+The first time you spin up an OpenSearch container (for W1, W2, etc), you'll need to install the Prometheus Exporter Plugin into that OpenSearch instance(s).
+
+1. Make sure your opensearch containers are running.
+
+2. Run the `install-plugin.sh` script in this directory.
+
+Proceed to Start the Metrics Stack below.
+
+### Careful How You Stop the OpenSearch Containers
+When you want to stop/restart your opensearch containers (the docker-compose-wX.yml stack), use the docker `stop` or `restart` commands instead of `Ctrl-c`.  Using `Ctrl-c` will cause the prometheus-exporter plugin to get lost and you'll have to re-run the `install-plugin.sh` script to re-install it.  Instead, use the docker `stop` or `restart` commands to stop/restart the opensearch containers.
+
+This is due to be a difference in signal handling:
+- `Ctrl-c` will send a SIGINT to the process
+- `docker stop` will send a SIGTERM allowing for a more graceful cleanup
 
 ### Start the Metrics Stack
 Whenever you want to gather or look at metrics, just compose up:
@@ -46,13 +44,13 @@ Note that we're running this **in addition to** (along side of) the weekly docke
 You might want to stop (`docker compose down`) the stack when you don't need it.  It only consumes ~ 300 MB memory, but does incur a bit of CPU since it polls and stores the metrics every 15 seconds.
 
 ## Troubleshooting
+If you're not seeing metrics in the dashboard, here are a few things to check:
 
-1. Did you restart the OpenSearch node after installing the plugin?
-```
-docker compose -f <docker-compose-file> restart opensearch-nodeX
-```
+1. Check the Time Picker
 
-2. Is the OpenSearch plugin listed?  You should see `prometheus-exporter` in the plugin list.  You can list installed plugins by either:
+Top right of the Grafana dashboard - make sure the time range is recent (like Last 15 Minutes), and that auto-refresh is on.
+
+2. Is the OpenSearch plugin listed?  You should see `prometheus-exporter` in the OpenSearch plugin list.  You can list installed plugins by either:
 ```
 docker exec -t opensearch-nodeX ./bin/opensearch-plugin list
 ```
@@ -60,7 +58,7 @@ docker exec -t opensearch-nodeX ./bin/opensearch-plugin list
 ```
 GET _cat/plugins?v
 ```
-If not, try the install command again and restart the container (step #1).
+If not, try the `install-plugin.sh` script again.
 
 3. Are the Prometheus targets showing a State of "Up"?
 ```
