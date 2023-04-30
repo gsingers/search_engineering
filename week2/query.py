@@ -1,6 +1,7 @@
 # A simple client for querying driven by user input on the command line.  Has hooks for the various
 # weeks (e.g. query understanding).  See the main section at the bottom of the file
 from opensearchpy import OpenSearch
+import signal
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 import argparse
@@ -15,6 +16,8 @@ import click
 
 from time import perf_counter
 import concurrent.futures
+from multiprocessing import Event
+from multiprocessing import Manager
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -216,7 +219,7 @@ def search(client, user_query, index="bbuy_products"):
         logger.debug(f'No results for query: {user_query}')
         return None, None
 
-def query_opensearch(worker_num, query_file: str, host: str, index_name: str, max_queries: int, seed: int):
+def query_opensearch(worker_num, query_file: str, host: str, index_name: str, max_queries: int, seed: int, stop_event):
     logger.info(f"Loading query file from {query_file} and using seed {seed} for worker: {worker_num}")
     query_df = pd.read_csv(query_file, parse_dates=['click_time', 'query_time'])
     queries = query_df["query"].sample(n=max_queries, random_state=seed)
@@ -238,6 +241,10 @@ def query_opensearch(worker_num, query_file: str, host: str, index_name: str, ma
         except:
             logger.warn(f'WN: {worker_num}: Failed to process query: {query}')
         i+= 1
+        if stop_event.is_set():
+            logger.info(f"WN: {worker_num}: Stopped early.")
+            end = perf_counter()
+            return (end-start)
 
     end = perf_counter()
     logger.info(f"WN: {worker_num}: Finished running {len(queries)} queries in {(end - start)/60} minutes")
@@ -255,14 +262,32 @@ def main(query_file: str, index_name: str, host: str, max_queries: int, seed: in
 
     start = perf_counter()
     time_querying = 0
-    with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as executor:
-        futures = [executor.submit(query_opensearch, i, query_file, host, index_name, max_queries, seed*(i+1)) for i in range(workers)]
-        for future in concurrent.futures.as_completed(futures):
-            time = future.result()
-            logger.info(f"Query worker finished in time: {time/60}")
+
+    with Manager() as manager:
+        stop_event = manager.Event()
+
+        with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as executor:
+            futures = [executor.submit(query_opensearch, i, query_file, host, index_name, max_queries, seed*(i+1), stop_event) for i in range(workers)]
+
+            # Define a signal handler to shut down the process pool when Ctrl+C is pressed
+            def signal_handler(sig, frame):
+                print()
+                print("Caught SIGINT. Shutting down workers...")
+                print()
+                for future in futures:
+                    # cancel any tasks not yet running
+                    future.cancel()
+                    # signal running tasks in the process pool to stop
+                    stop_event.set()
+
+            # Register the signal handler for SIGINT 
+            signal.signal(signal.SIGINT, signal_handler)
+
+            for future in concurrent.futures.as_completed(futures):
+                time = future.result()
+                logger.info(f"Query worker finished in time: {time/60}")
+
     end = perf_counter()
     
-
 if __name__ == "__main__":
     main()
-

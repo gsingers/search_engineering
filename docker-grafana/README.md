@@ -66,6 +66,9 @@ http://localhost:9090/targets
 ```
 This shows each "target" - each job that Prometheus is running to scrape metrics data from the targets.  If they aren't in a green "Up" state, there will be a red error message indicating why.  **NOTE** that for W1 and W2 we only have a single OpenSearch node, so it's expected that the targets for node2 and node3 will be red.
 
+4. Are the Dashboard Parameters Set Correctly?
+At the top of the dashboard are two parameters selectable in drop-down lists.  Make sure datasource is set to `Prometheus` and index is set to the index for which you want to see metrics (usually `bbuy_products`)
+
 ## References
 - cadvisor [Container metrics reference](https://github.com/google/cadvisor/blob/master/docs/storage/prometheus.md)
 - [Prometheus query example](https://prometheus.io/docs/prometheus/latest/querying/examples/)
