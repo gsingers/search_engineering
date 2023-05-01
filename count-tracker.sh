@@ -19,10 +19,19 @@ do
 done
 shift $((OPTIND -1))
 
-
+COUNT=0
 while [ true ];
 do
-  echo "Products:"
-  curl -k -XGET -u admin:admin  "https://$HOST:9200/_cat/count/bbuy_products";
+  NEW_COUNT=$(curl -ks -X GET -u admin:admin  "https://$HOST:9200/_cat/count/bbuy_products" | awk '{print $3}')
+  echo "Products: $NEW_COUNT"
+  if [ "$COUNT" = "$NEW_COUNT" ]
+  then
+    osascript -e 'tell app "System Events" to display notification "🫡 Finished Indexing!" with title "Finally!"'
+    break
+  else
+    COUNT="$NEW_COUNT"
+  fi
+
   sleep 30;
 done
+
