@@ -1,0 +1,104 @@
+---- week1, running in gitpod.
+
+export BBUY_DATA=/workspace/datasets/product_data/products
+
+curl -k -X DELETE -u admin:admin https://localhost:9200/bbuy_products
+curl -k -X PUT -u admin:admin "https://localhost:9200/bbuy_products" -H 'Content-Type: application/json' -d @bbuy_products.json
+
+python index.py -s /workspace/datasets/product_data/products
+INFO:Indexing /workspace/datasets/product_data/products to bbuy_products with 8 workers, refresh_interval of -1 to host localhost with a maximum number of docs sent per file per worker of 200000 and 200 per batch.
+INFO:Done. 1275077 were indexed in 9.922109846950237 minutes.  Total accumulated time spent in `bulk` indexing: 30.307174058161035 minutes
+
+
+curl -k -X DELETE -u admin:admin https://localhost:9200/bbuy_products
+
+curl -k -X PUT -u admin:admin "https://localhost:9200/bbuy_products" -H 'Content-Type: application/json' -d @bbuy_products_no_map.json
+python index.py -s /workspace/datasets/product_data/products
+INFO:Indexing /workspace/datasets/product_data/products to bbuy_products with 8 workers, refresh_interval of -1 to host localhost with a maximum number of docs sent per file per worker of 200000 and 200 per batch.
+INFO:Done. 1275077 were indexed in 8.406999807966834 minutes.  Total accumulated time spent in `bulk` indexing: 23.900626916195325 minutes
+
+
+-- refresh-intervals:
+
+-1:
+curl -k -X DELETE -u admin:admin https://localhost:9200/bbuy_products
+curl -k -X PUT -u admin:admin "https://localhost:9200/bbuy_products" -H 'Content-Type: application/json' -d @bbuy_products_no_map.json
+python index.py -s /workspace/datasets/product_data/products --refresh_interval -1
+INFO:Indexing /workspace/datasets/product_data/products to bbuy_products with 8 workers, refresh_interval of -1 to host localhost with a maximum number of docs sent per file per worker of 200000 and 200 per batch.
+INFO:Done. 1275077 were indexed in 8.115769755166548 minutes.  Total accumulated time spent in `bulk` indexing: 23.873669005803823 minutes
+
+1:
+curl -k -X DELETE -u admin:admin https://localhost:9200/bbuy_products
+curl -k -X PUT -u admin:admin "https://localhost:9200/bbuy_products" -H 'Content-Type: application/json' -d @bbuy_products_no_map.json
+python index.py -s /workspace/datasets/product_data/products --refresh_interval 1s
+INFO:Indexing /workspace/datasets/product_data/products to bbuy_products with 8 workers, refresh_interval of 1s to host localhost with a maximum number of docs sent per file per worker of 200000 and 200 per batch.
+INFO:Done. 1275077 were indexed in 8.852590531449824 minutes.  Total accumulated time spent in `bulk` indexing: 24.022950780299045 minutes
+
+60:
+curl -k -X DELETE -u admin:admin https://localhost:9200/bbuy_products
+curl -k -X PUT -u admin:admin "https://localhost:9200/bbuy_products" -H 'Content-Type: application/json' -d @bbuy_products_no_map.json
+python index.py -s /workspace/datasets/product_data/products --refresh_interval 60s
+INFO:Indexing /workspace/datasets/product_data/products to bbuy_products with 8 workers, refresh_interval of 60s to host localhost with a maximum number of docs sent per file per worker of 200000 and 200 per batch.
+INFO:Done. 1275077 were indexed in 7.781203374333563 minutes.  Total accumulated time spent in `bulk` indexing: 22.726982587378007 minutes
+
+-- Batch sizes:
+
+400:
+curl -k -X DELETE -u admin:admin https://localhost:9200/bbuy_products
+curl -k -X PUT -u admin:admin "https://localhost:9200/bbuy_products" -H 'Content-Type: application/json' -d @bbuy_products_no_map.json
+python index.py -s /workspace/datasets/product_data/products --batch_size 400
+INFO:Indexing /workspace/datasets/product_data/products to bbuy_products with 8 workers, refresh_interval of -1 to host localhost with a maximum number of docs sent per file per worker of 200000 and 400 per batch.
+INFO:Done. 1275077 were indexed in 8.35581113601705 minutes.  Total accumulated time spent in `bulk` indexing: 22.256467518976812 minutes
+
+
+800:
+curl -k -X DELETE -u admin:admin https://localhost:9200/bbuy_products
+curl -k -X PUT -u admin:admin "https://localhost:9200/bbuy_products" -H 'Content-Type: application/json' -d @bbuy_products_no_map.json
+python index.py -s /workspace/datasets/product_data/products --batch_size 800
+INFO:Indexing /workspace/datasets/product_data/products to bbuy_products with 8 workers, refresh_interval of -1 to host localhost with a maximum number of docs sent per file per worker of 200000 and 800 per batch.
+INFO:Done. 1275077 were indexed in 7.519638787550018 minutes.  Total accumulated time spent in `bulk` indexing: 20.513053392077563 minutes
+
+
+1600:
+curl -k -X DELETE -u admin:admin https://localhost:9200/bbuy_products
+curl -k -X PUT -u admin:admin "https://localhost:9200/bbuy_products" -H 'Content-Type: application/json' -d @bbuy_products_no_map.json
+python index.py -s /workspace/datasets/product_data/products --batch_size 1600
+INFO:Indexing /workspace/datasets/product_data/products to bbuy_products with 8 workers, refresh_interval of -1 to host localhost with a maximum number of docs sent per file per worker of 200000 and 1600 per batch.
+INFO:Done. 1275077 were indexed in 9.076533603150164 minutes.  Total accumulated time spent in `bulk` indexing: 24.444320515682435 minutes
+
+-- Workers:
+
+16:
+curl -k -X DELETE -u admin:admin https://localhost:9200/bbuy_products
+curl -k -X PUT -u admin:admin "https://localhost:9200/bbuy_products" -H 'Content-Type: application/json' -d @bbuy_products_no_map.json
+python index.py -s /workspace/datasets/product_data/products --workers 16
+INFO:Indexing /workspace/datasets/product_data/products to bbuy_products with 16 workers, refresh_interval of -1 to host localhost with a maximum number of docs sent per file per worker of 200000 and 200 per batch.
+INFO:Done. 1275077 were indexed in 11.619162508367056 minutes.  Total accumulated time spent in `bulk` indexing: 72.77314870621825 minutes
+
+32:
+curl -k -X DELETE -u admin:admin https://localhost:9200/bbuy_products
+curl -k -X PUT -u admin:admin "https://localhost:9200/bbuy_products" -H 'Content-Type: application/json' -d @bbuy_products_no_map.json
+python index.py -s /workspace/datasets/product_data/products --workers 32
+
+64:
+curl -k -X DELETE -u admin:admin https://localhost:9200/bbuy_products
+curl -k -X PUT -u admin:admin "https://localhost:9200/bbuy_products" -H 'Content-Type: application/json' -d @bbuy_products_no_map.json
+python index.py -s /workspace/datasets/product_data/products --workers 64
+
+
+
+-- Query performance
+export QUERY_FILE=~/workspace/datasets/train.csv
+
+python query.py --query_file /workspace/datasets/train.csv --max_queries 1000
+
+INFO:Loading query file from /workspace/datasets/train.csv
+INFO:Running queries, checking in every 1000 queries:
+INFO:Query: Bad teacher has 10 hits.
+INFO:Finished running 1000 queries in 0.422766538283516 minutes
+
+
+INFO:Loading query file from /workspace/datasets/train.csv
+INFO:Running queries, checking in every 1000 queries:
+INFO:Query: Bad teacher has 10 hits.
+INFO:Finished running 1000 queries in 0.16969594265004465 minutes
