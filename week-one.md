@@ -52,23 +52,11 @@ Workers: 8
 Full field set, with `bbuy_products` mappings
 ```
 
-### Refresh interval switched off
-```
-Indexing time: 2.13 minutes
-Total accumulated time: 8.24 minutes
-```
+Time | -1 | 1s | 60s
+--- | --- | --- | ---
+Indexing time (minutes) | 2.13 | 2.27 | 2.10
+Total accumulated time (minutes) | 8.24 | 9.28 | 8.06
 
-### Default refresh interval, 1s
-```
-Indexing time: 2.27 minutes
-Total accumulated time: 9.28 minutes
-```
-
-### 60s
-```
-Indexing time: 2.10 minutes
-Total accumulated time: 8.06 minutes
-```
 
 ## Level 1, Batch Size
 
@@ -81,41 +69,11 @@ Refresh Interval: 60s
 Full field set, with `bbuy_products` mappings
 ```
 
-### 200
-```
-Indexing time: 2.03 minutes
-Total accumulated time: 7.60 minutes
-```
+Time | 200 | 400 | 800 | 1600 | 3200 | 5000
+--- | --- | --- | --- | --- | --- | ---
+Indexing time (minutes) | 2.03 | 2.02 | 2.01 | 2.09 | 2.09 | 2.07
+Total accumulated time (minutes) | 7.60 | 7.46 | 7.35 | 7.81 | 7.49 | 7.46
 
-### 400
-```
-Indexing time: 2.02 minutes
-Total accumulated time: 7.46 minutes
-```
-
-### 800
-```
-Indexing time: 2.01 minutes
-Total accumulated time: 7.35 minutes
-```
-
-### 1600
-```
-Indexing time: 2.09 minutes
-Total accumulated time: 7.81 minutes
-```
-
-### 3200
-```
-Indexing time: 2.09 minutes
-Total accumulated time: 7.49 minutes
-```
-
-### 5000
-```
-Indexing time: 2.07 minutes
-Total accumulated time: 7.46 minutes
-```
 
 ## Level 1, Workers
 
@@ -128,27 +86,9 @@ Refresh Interval: -1
 Full field set, with `bbuy_products` mappings
 ```
 
-### 8
-```
-Indexing time: 2.07 minutes
-Total accumulated time: 7.50 minutes
-```
+Time | 8 | 16 | 32 | 64
+--- | --- | --- | --- | ---
+Indexing time (minutes) | 2.07 | 2.06 | 2.76 | 3.14
+Total accumulated time (minutes) | 7.50 | 22.34 | 65.16 | 156.13
 
-### 16
-```
-Indexing time: 2.06 minutes
-Total accumulated time: 22.34 minutes
-```
-
-### 32
-```
-Indexing time: 2.76 minutes
-Total accumulated time: 65.16 minutes
-```
-
-### 64
-```
-Indexing time: 3.14 minutes
-Total accumulated time: 156.13 minutes
-```
 
