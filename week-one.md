@@ -91,4 +91,15 @@ Time | 8 | 16 | 32 | 64
 Indexing time (minutes) | 2.07 | 2.06 | 2.76 | 3.14
 Total accumulated time (minutes) | 7.50 | 22.34 | 65.16 | 156.13
 
+## Level 2
+
+As expected, simplifying the query can benefit greatly the speed at the cost of result quality 😅
+
+```
+Baseline: 2.45 minutes
+No fuzziness: 2.04 minutes
+Drop function score: 1.60 minutes
+Only multi-match: 1.41 minutes
+Multi-match name and short description only: 0.95 minutes
+```
 
