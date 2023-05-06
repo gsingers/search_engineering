@@ -1,0 +1,39 @@
+Week 2
+
+Level 1
+curl -k -X PUT -u admin:admin "https://localhost:9200/bbuy_products" -H 'Content-Type: application/json' -d @week1/bbuy_products.json
+
+python week2/index.py -s /workspace/datasets/product_data/products -w 16 -b 500 -m 50000
+INFO:Indexing /workspace/datasets/product_data/products to bbuy_products with 16 workers, refresh_interval of -1 to host localhost with a maximum number of docs sent per file per worker of 50000 and 500 per batch.
+INFO:Done. 1275077 were indexed in 11.064095348049886 minutes.  Total accumulated time spent in `bulk` indexing: 128.65915842517472 minutes
+
+~2k docs/sec
+
+re-index content:
+python week2/index.py -s /workspace/datasets/product_data/products -w 16 -b 500 -m 50000
+INFO:Indexing /workspace/datasets/product_data/products to bbuy_products with 16 workers, refresh_interval of -1 to host localhost with a maximum number of docs sent per file per worker of 50000 and 500 per batch.
+INFO:Done. 1275077 were indexed in 10.461924422199566 minutes.  Total accumulated time spent in `bulk` indexing: 120.99868232431861 minutes
+
+~2k docs/sec
+
+python week2/query.py -q /workspace/datasets/train.csv  -w 4 -m 25000
+INFO:Finished running 25000 queries in 4.871648958350609 minutes
+
+85 queries/sec
+
+Level 2. 2 CPU, 4GB
+
+python week2/index.py -s /workspace/datasets/product_data/products -w 16 -b 500 -m 50000
+
+-- documents indexed per second went down, but time spent indexing went up.
+-- deleted the index and tried again.
+
+INFO:Indexing /workspace/datasets/product_data/products to bbuy_products with 16 workers, refresh_interval of -1 to host localhost with a maximum number of docs sent per file per worker of 50000 and 500 per batch.
+INFO:Done. 1275077 were indexed in 12.691176588032977 minutes.  Total accumulated time spent in `bulk` indexing: 85.20092873292354 minutes
+
+python week2/query.py -q /workspace/datasets/train.csv  -w 4 -m 25000
+
+CPU usage was limiting once again.
+
+Level 3: 4 CPU, 8GB
+results in images
