@@ -6,7 +6,7 @@ services:
     environment:
       - discovery.type=single-node
       - http.max_content_length=1000mb
-      - "OPENSEARCH_JAVA_OPTS=-Xms1G -Xmx1G"
+      - "OPENSEARCH_JAVA_OPTS=-Xms4G -Xmx4G"
       # Avoid creating security-auditlog index, since that results in unallocated shards on a single node setup.
       # This will send security audit events to stdout instead https://opensearch.org/docs/latest/security/audit-logs/storage-types/
       - plugins.security.audit.type=debug
@@ -24,8 +24,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
-          memory: 2GB
+          cpus: '4'
+          memory: 8GB
   opensearch-dashboards:
     image: opensearchproject/opensearch-dashboards:2.6.0
     container_name: opensearch-dashboards

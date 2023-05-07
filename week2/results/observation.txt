@@ -1,0 +1,54 @@
+pre-setup
+---------
+
+$ pyenv activate search_eng
+** Tab1
+$ docker-compose -f docker/docker-compose-w2.yml up
+https://5601-<$GITPOD_URL>/app/opensearch_dashboards_overview#/
+
+** Tab2
+$ ./docker-grafana/install-plugin.sh
+$ docker-compose -f docker-grafana/monitoring.yml up
+http://3000-<$GITPOD_URL>/d/opensearch/opensearch-prometheus
+
+export BBUY_DATA=/workspace/datasets/product_data/products
+export BBUY_QUERIES=/workspace/datasets
+
+
+Level 1
+--------
+** Create the index with field mappings:
+$ curl -k -X PUT -u admin:admin "https://localhost:9200/bbuy_products" -H 'Content-Type: application/json' -d @week1/bbuy_products.json
+Result: {"acknowledged":true,"shards_acknowledged":true,"index":"bbuy_products"}
+
+** Index the Best Buy products:
+$ python week2/index.py -s /workspace/datasets/product_data/products -w 16 -b 500 -m 50000
+Results: 
+INFO:Indexing /workspace/datasets/product_data/products to bbuy_products with 16 workers, refresh_interval of -1 to host localhost with a maximum number of docs sent per file per worker of 50000 and 500 per batch.
+INFO:Done. 1275077 were indexed in 9.490058826416497 minutes.  Total accumulated time spent in `bulk` indexing: 128.00031863183054 minutes
+Indexing rate is around 2.2k docs/sec
+
+** Re-Index the same content:
+$ python week2/index.py -s /workspace/datasets/product_data/products -w 16 -b 500 -m 50000
+Results: 
+INFO:Indexing /workspace/datasets/product_data/products to bbuy_products with 16 workers, refresh_interval of -1 to host localhost with a maximum number of docs sent per file per worker of 50000 and 500 per batch.
+INFO:Done. 1275077 were indexed in 9.020741099316277 minutes.  Total accumulated time spent in `bulk` indexing: 121.67989944283046 minutes
+Indexing rate is around 2.2k docs/sec
+
+** Run a query load:
+$ python week2/query.py -q /workspace/datasets/train.csv  -w 4 -m 25000
+INFO:Finished running 25000 queries in 6.971638958380609 minutes
+Querying rate is 60 query/sec
+
+
+Level 2: 
+--------
+** [2 CPU, 4GB]
+Results: 
+Indexing rate: 4.2k docs/sec
+Querying rate: 138 queries/sec
+
+** [4 CPU, 8GB]
+Results: 
+Indexing rate: 5.1K docs/sec
+Querying rate: 169 queries/sec
