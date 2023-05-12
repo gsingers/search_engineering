@@ -1,5 +1,9 @@
 {
   "settings": {
+    "index": {
+      "number_of_shards": 3,
+      "number_of_replicas": 0
+    },
     "analysis": {
       "analyzer": {
         "smarter_hyphens": {
@@ -249,7 +253,6 @@
           "suggest": {
             "type": "completion"
           }
-
         }
       },
       "onSale": {
@@ -282,7 +285,6 @@
           "suggest": {
             "type": "completion"
           }
-
         }
       },
       "productId": {
