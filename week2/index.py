@@ -14,7 +14,10 @@ import requests
 import json
 
 from time import perf_counter
+import signal
 import concurrent.futures
+from multiprocessing import Event
+from multiprocessing import Manager
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -157,7 +160,7 @@ def get_opensearch(the_host="localhost"):
     return client
 
 
-def index_file(file, index_name, host="localhost", max_docs=2000000, batch_size=200):
+def index_file(file, index_name, stop_event, host="localhost", max_docs=2000000, batch_size=200):
     docs_indexed = 0
     ### W4: S1: Load the model.  # We do this here to avoid threading issues
     client = get_opensearch(host)
@@ -170,7 +173,7 @@ def index_file(file, index_name, host="localhost", max_docs=2000000, batch_size=
     time_indexing = 0
 
     for child in children:
-        if docs_indexed >= max_docs:
+        if docs_indexed >= max_docs or stop_event.is_set():
             break
         doc = {}
         for name, xpath in mappings.items():
@@ -215,18 +218,30 @@ def main(source_dir: str, file_glob: str, index_name: str, workers: int, host: s
     client = get_opensearch(host)
 
     #TODO: set the refresh interval
-    settings = {
-        "index" : {
-            "refresh_interval" : refresh_interval
-        }
-    }
-    # update index settings
-    client.indices.put_settings(index=index_name, body=settings)
     logger.debug(client.indices.get_settings(index=index_name))
     start = perf_counter()
     time_indexing = 0
-    with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as executor:
-        futures = [executor.submit(index_file, file, index_name, host, max_docs, batch_size) for file in files]
+
+    with Manager() as manager:
+        stop_event = manager.Event()
+
+        with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as executor:
+            futures = [executor.submit(index_file, file, index_name, stop_event, host, max_docs, batch_size) for file in files]
+
+            # Define a signal handler to shut down the process pool when Ctrl+C is pressed
+            def signal_handler(sig, frame):
+                print()
+                print("Caught SIGINT. Shutting down workers...")
+                print()
+                for future in futures:
+                    # cancel any tasks not yet running
+                    future.cancel()
+                    # signal running tasks in the process pool to stop
+                    stop_event.set()
+
+            # Register the signal handler for SIGINT 
+            signal.signal(signal.SIGINT, signal_handler)
+
         for future in concurrent.futures.as_completed(futures):
             num_docs, the_time = future.result()
             docs_indexed += num_docs
@@ -235,14 +250,6 @@ def main(source_dir: str, file_glob: str, index_name: str, workers: int, host: s
     finish = perf_counter()
     logger.info(f'Done. {docs_indexed} were indexed in {(finish - start)/60} minutes.  Total accumulated time spent in `bulk` indexing: {time_indexing/60} minutes')
     # TODO set refresh interval back to 5s
-    settings = {
-        "index" : {
-            "refresh_interval" : "5s"
-        }
-    }
-    # reset index settings
-    client.indices.put_settings(index=index_name, body=settings)
-
     logger.debug(client.indices.get_settings(index=index_name))
 
 if __name__ == "__main__":

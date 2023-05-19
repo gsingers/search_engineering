@@ -1,0 +1,53 @@
+# Create the Snapshot repository
+PUT /_snapshot/search-eng-repository
+{
+  "type": "fs",
+  "settings": {
+    "location": "/usr/share/opensearch/snapshots"
+  }
+}
+
+# Index a few docs
+
+PUT /search_eng_test/_doc/doc_a
+{ "title": "Fox and Hounds",
+"body": "The quick red fox jumped over the lazy brown dogs.",
+"category": "childrens" }
+
+PUT /search_eng_test/_doc/doc_b
+{ "title": "Fox wins championship",
+"body": "Wearing all red, the Fox jumped out to a lead in the race over the Dog.",
+"category": "sports" }
+
+PUT /search_eng_test/_doc/doc_c
+{ "title": "Lead Paint Removal",
+"body": "All lead must be removed from the brown and red paint.",
+"category": "instructional" }
+
+PUT /search_eng_test/_doc/doc_d
+{ "title": "The Three Little Pigs Revisted",
+"body": "The big, bad wolf huffed and puffed and blew the house down. The end.",
+"category": "childrens" }
+
+# Take the snapshot
+PUT /_snapshot/search-eng-repository/test_snap
+
+# Ask for the snapshot back:
+GET /_snapshot/search-eng-repository/test_snap
+
+DELETE /search_eng_test
+GET /_cat/indices
+POST /_snapshot/search-eng-repository/test_snap/_restore
+{
+  "indices": "search_eng_test",
+  "ignore_unavailable": true,
+  "include_global_state": false,
+  "include_aliases": false,
+  "partial": false,
+  "index_settings": {
+    "index.blocks.read_only": false
+  },
+  "ignore_index_settings": [
+    "index.refresh_interval"
+  ]
+}
