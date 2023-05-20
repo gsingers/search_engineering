@@ -8,7 +8,8 @@ services:
       - node.name=opensearch-node1
       - discovery.seed_hosts=opensearch-node1,opensearch-node2
       - cluster.initial_master_nodes=opensearch-node1,opensearch-node2
-      - bootstrap.memory_lock=true # along with the memlock settings below, disables swapping
+      - bootstrap.memory_lock=false # AP: so memlock bootstrap check will pass - since we can't memlock unlimited on GitPod
+      - node.store.allow_mmap=false # AP: so vm.max_map_count bootstrap check will pass - but don't do in prod it degrades perf
       - path.repo=/usr/share/opensearch/snapshots
       - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m" # minimum and maximum Java heap size, recommend setting both to 50% of system RAM
     ulimits:
@@ -34,7 +35,8 @@ services:
       - node.name=opensearch-node2
       - discovery.seed_hosts=opensearch-node1,opensearch-node2
       - cluster.initial_master_nodes=opensearch-node1,opensearch-node2
-      - bootstrap.memory_lock=true
+      - bootstrap.memory_lock=false # AP: so memlock bootstrap check will pass - since we can't memlock unlimited on GitPod
+      - node.store.allow_mmap=false # AP: so vm.max_map_count bootstrap check will pass - but don't do in prod it degrades perf
       - path.repo=/usr/share/opensearch/snapshots
       - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
