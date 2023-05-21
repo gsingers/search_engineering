@@ -1,0 +1,179 @@
+# OpenSearch 2 clusters both w/ 3 uniform nodes plus a dashboard node
+# Needs minimum ~ 5 GB RAM on the host
+
+# NOTE: We use a few configuration anti-patterns here to make this work in environments
+# where you don't control the underlying host (GitPod, docker-in-docker, etc.).  These
+# are indicated by "AP:" in the comment.  See the week 3 appendix of the class for more info.
+# Don't use these "AP:" settings in a real OpenSearch environment!
+
+version: '3'
+services:
+  # Cluster 1
+  # Node 1
+  opensearch-cl1-node1:
+    image: opensearchproject/opensearch:2.6.0
+    container_name: opensearch-cl1-node1
+    ports:
+      - 9200:9200
+      - 9600:9600 # required for Performance Analyzer
+    environment:
+      - cluster.name=opensearch-cluster-cl1
+      - node.name=opensearch-cl1-node1
+      - discovery.seed_hosts=opensearch-cl1-node1,opensearch-cl1-node2,opensearch-cl1-node3
+      - cluster.initial_master_nodes=opensearch-cl1-node1,opensearch-cl1-node2,opensearch-cl1-node3
+      - bootstrap.memory_lock=false # AP: so memlock bootstrap check will pass - since we can't memlock unlimited on GitPod
+      - node.store.allow_mmap=false # AP: so vm.max_map_count bootstrap check will pass - but don't do in prod it degrades perf
+      - path.repo=/usr/share/opensearch/snapshots
+      - "OPENSEARCH_JAVA_OPTS=-Xms1G -Xmx1G"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - search-eng-week4-cl1-d1:/usr/share/opensearch/data
+      - opensearch-snapshots:/usr/share/opensearch/snapshots
+    networks:
+      - opensearch-net
+  # Node 2
+  opensearch-cl1-node2:
+    image: opensearchproject/opensearch:2.6.0
+    container_name: opensearch-cl1-node2
+    environment:
+      - cluster.name=opensearch-cluster-cl1
+      - node.name=opensearch-cl1-node2
+      - discovery.seed_hosts=opensearch-cl1-node1,opensearch-cl1-node2,opensearch-cl1-node3
+      - cluster.initial_master_nodes=opensearch-cl1-node1,opensearch-cl1-node2,opensearch-cl1-node3
+      - bootstrap.memory_lock=false # AP: so memlock bootstrap check will pass - since we can't memlock unlimited on GitPod
+      - node.store.allow_mmap=false # AP: so vm.max_map_count bootstrap check will pass - but don't do in prod it degrades perf
+      - path.repo=/usr/share/opensearch/snapshots
+      - "OPENSEARCH_JAVA_OPTS=-Xms1G -Xmx1G"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - search-eng-week4-cl1-d2:/usr/share/opensearch/data
+      - opensearch-snapshots:/usr/share/opensearch/snapshots
+    networks:
+      - opensearch-net
+  # Node 3
+  opensearch-cl1-node3:
+    image: opensearchproject/opensearch:2.6.0
+    container_name: opensearch-cl1-node3
+    environment:
+      - cluster.name=opensearch-cluster-cl1
+      - node.name=opensearch-cl1-node3
+      - discovery.seed_hosts=opensearch-cl1-node1,opensearch-cl1-node2,opensearch-cl1-node3
+      - cluster.initial_master_nodes=opensearch-cl1-node1,opensearch-cl1-node2,opensearch-cl1-node3
+      - bootstrap.memory_lock=false # AP: so memlock bootstrap check will pass - since we can't memlock unlimited on GitPod
+      - node.store.allow_mmap=false # AP: so vm.max_map_count bootstrap check will pass - but don't do in prod it degrades perf
+      - path.repo=/usr/share/opensearch/snapshots
+      - "OPENSEARCH_JAVA_OPTS=-Xms1G -Xmx1G"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - search-eng-week4-cl1-d3:/usr/share/opensearch/data
+      - opensearch-snapshots:/usr/share/opensearch/snapshots
+    networks:
+      - opensearch-net
+
+  # Cluster 2
+  # Node 1
+  opensearch-cl2-node1:
+    image: opensearchproject/opensearch:2.6.0
+    container_name: opensearch-cl2-node1
+    ports:
+      - 9201:9200
+      - 9700:9600 # required for Performance Analyzer
+    environment:
+      - cluster.name=opensearch-cluster-cl2
+      - node.name=opensearch-cl2-node1
+      - discovery.seed_hosts=opensearch-cl2-node1,opensearch-cl2-node2,opensearch-cl2-node3
+      - cluster.initial_master_nodes=opensearch-cl2-node1,opensearch-cl2-node2,opensearch-cl2-node3
+      - bootstrap.memory_lock=false # AP: so memlock bootstrap check will pass - since we can't memlock unlimited on GitPod
+      - node.store.allow_mmap=false # AP: so vm.max_map_count bootstrap check will pass - but don't do in prod it degrades perf
+      - path.repo=/usr/share/opensearch/snapshots
+      - "OPENSEARCH_JAVA_OPTS=-Xms1G -Xmx1G"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - search-eng-week4-cl2-d1:/usr/share/opensearch/data
+      - opensearch-snapshots:/usr/share/opensearch/snapshots
+    networks:
+      - opensearch-net
+  # Node 2
+  opensearch-cl2-node2:
+    image: opensearchproject/opensearch:2.6.0
+    container_name: opensearch-cl2-node2
+    environment:
+      - cluster.name=opensearch-cluster-cl2
+      - node.name=opensearch-cl2-node2
+      - discovery.seed_hosts=opensearch-cl2-node1,opensearch-cl2-node2,opensearch-cl2-node3
+      - cluster.initial_master_nodes=opensearch-cl2-node1,opensearch-cl2-node2,opensearch-cl2-node3
+      - bootstrap.memory_lock=false # AP: so memlock bootstrap check will pass - since we can't memlock unlimited on GitPod
+      - node.store.allow_mmap=false # AP: so vm.max_map_count bootstrap check will pass - but don't do in prod it degrades perf
+      - path.repo=/usr/share/opensearch/snapshots
+      - "OPENSEARCH_JAVA_OPTS=-Xms1G -Xmx1G"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - search-eng-week4-cl2-d2:/usr/share/opensearch/data
+      - opensearch-snapshots:/usr/share/opensearch/snapshots
+    networks:
+      - opensearch-net
+  # Node 3
+  opensearch-cl2-node3:
+    image: opensearchproject/opensearch:2.6.0
+    container_name: opensearch-cl2-node3
+    environment:
+      - cluster.name=opensearch-cluster-cl2
+      - node.name=opensearch-cl2-node3
+      - discovery.seed_hosts=opensearch-cl2-node1,opensearch-cl2-node2,opensearch-cl2-node3
+      - cluster.initial_master_nodes=opensearch-cl2-node1,opensearch-cl2-node2,opensearch-cl2-node3
+      - bootstrap.memory_lock=false # AP: so memlock bootstrap check will pass - since we can't memlock unlimited on GitPod
+      - node.store.allow_mmap=false # AP: so vm.max_map_count bootstrap check will pass - but don't do in prod it degrades perf
+      - path.repo=/usr/share/opensearch/snapshots
+      - "OPENSEARCH_JAVA_OPTS=-Xms1G -Xmx1G"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - search-eng-week4-cl2-d3:/usr/share/opensearch/data
+      - opensearch-snapshots:/usr/share/opensearch/snapshots
+    networks:
+      - opensearch-net
+
+  # Dashboards
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:2.6.0
+    container_name: opensearch-dashboards
+    ports:
+      - 5601:5601
+    expose:
+      - "5601"
+    environment:
+      OPENSEARCH_HOSTS: '["https://opensearch-cl1-node1:9200","https://opensearch-cl1-node2:9200","https://opensearch-cl1-node3:9200"]'
+    networks:
+      - opensearch-net
+
+volumes:
+  search-eng-week4-cl1-d1:
+  search-eng-week4-cl1-d2:
+  search-eng-week4-cl1-d3:
+  search-eng-week4-cl2-d1:
+  search-eng-week4-cl2-d2:
+  search-eng-week4-cl2-d3:
+  opensearch-snapshots:
+
+
+networks:
+  opensearch-net:
+    # explicitly set name, otherwise the docker network name is prepended with the folder (project) name
+    name: opensearch-net

@@ -1436,7 +1436,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "container_memory_usage_bytes{name=~\"opensearch-node.*\"}",
+          "expr": "container_memory_usage_bytes{name=~\"opensearch-cl[0-9]-node-[0-9]\"}",
           "format": "time_series",
           "interval": "10s",
           "intervalFactor": 1,
@@ -1452,7 +1452,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "container_memory_working_set_bytes{name=~\"opensearch-node.*\"}",
+          "expr": "container_memory_working_set_bytes{name=~\"opensearch-cl[0-9]-node-[0-9]\"}",
           "hide": false,
           "legendFormat": "working set: {{name}}",
           "range": true,
@@ -1553,7 +1553,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "rate(container_network_receive_bytes_total{name=~\"opensearch-node.*\"}[30s])",
+          "expr": "rate(container_network_receive_bytes_total{name=~\"opensearch-cl[0-9]-node-[0-9]\"}[30s])",
           "interval": "10s",
           "intervalFactor": 1,
           "legendFormat": "{{ name }}",
@@ -1657,7 +1657,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "rate(container_network_transmit_bytes_total{name=~\"opensearch-node.*\"}[30s])",
+          "expr": "rate(container_network_transmit_bytes_total{name=~\"opensearch-cl[0-9]-node-[0-9]\"}[30s])",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "{{ name }}",
@@ -1787,7 +1787,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "rate(container_blkio_device_usage_total{operation=\"Read\",name=~\"opensearch-node.*\"}[1m])",
+          "expr": "rate(container_blkio_device_usage_total{operation=\"Read\",name=~\"opensearch-cl[0-9]-node-[0-9]\"}[1m])",
           "legendFormat": "{{name}}",
           "range": true,
           "refId": "A"
@@ -1882,7 +1882,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "rate(container_blkio_device_usage_total{operation=\"Write\",name=~\"opensearch-node.*\"}[1m])",
+          "expr": "rate(container_blkio_device_usage_total{operation=\"Write\",name=~\"opensearch-cl[0-9]-node-[0-9]\"}[1m])",
           "legendFormat": "{{name}}",
           "range": true,
           "refId": "A"

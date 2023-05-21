@@ -42,9 +42,13 @@ scrape_configs:
       # TODO: could we use dynamic service discovery here w/ Docker container labels?
       # https://prometheus.io/docs/prometheus/latest/configuration/configuration/#docker_sd_config
       - targets:
-          - "opensearch-node1:9200"
-          - "opensearch-node2:9200"
-          - "opensearch-node3:9200"
+          - "opensearch-cl1-node1:9200"
+          - "opensearch-cl1-node2:9200"
+          - "opensearch-cl1-node3:9200"
+          - "opensearch-cl2-node1:9200"
+          - "opensearch-cl2-node2:9200"
+          - "opensearch-cl2-node3:9200"
+
 
   - job_name: cadvisor
 
