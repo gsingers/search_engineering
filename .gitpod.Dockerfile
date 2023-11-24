@@ -16,10 +16,10 @@ RUN echo 'export PATH="$HOME/.pyenv/bin:$PATH"' >> /home/gitpod/.bashrc
 RUN echo 'eval "$(pyenv init -)"' >> /home/gitpod/.bashrc
 RUN echo 'eval "$(pyenv virtualenv-init -)"' >> /home/gitpod/.bashrc
 
-RUN pyenv install 3.9.7
-RUN pyenv global 3.9.7
+RUN pyenv install 3.10.6
+RUN pyenv global 3.10.6
 RUN python3 -m pip install --upgrade pip
 
-RUN pyenv virtualenv 3.9.7 search_eng
+RUN pyenv virtualenv 3.10.6 search_eng
 
 RUN bash  -i -c "pyenv activate search_eng && pip install -r /home/gitpod/requirements.txt"
