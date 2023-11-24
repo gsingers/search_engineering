@@ -5,7 +5,7 @@
 #         https://github.com/aiven/prometheus-exporter-plugin-for-opensearch#install-or-remove-plugin
 # 
 # Run this against each OpenSearch container that you are running:
-# docker exec -t opensearch-node1 ./bin/opensearch-plugin install https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/2.6.0.0/prometheus-exporter-2.6.0.0.zip
+# docker exec -t opensearch-node1 ./bin/opensearch-plugin install https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/2.11.0.0/prometheus-exporter-2.11.0.0.zip
 # 
 # Understanding the 3 pieces that make this work:
 # 1) The Prometheus Exporter Plugin exposes metrics on a new endpoint (/_prometheus/metrics) on the OpenSearch instance

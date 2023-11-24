@@ -89,7 +89,7 @@ def get_opensearch(the_host="localhost"):
     auth = ('admin', 'admin')
     client = OpenSearch(
         hosts=[{'host': host, 'port': port}],
-        http_compress=True,  # enables gzip compression for request bodies
+        http_compress=False,  # enables gzip compression for request bodies.  Turned off of https://github.com/opensearch-project/security/pull/3583
         http_auth=auth,
         # client_cert = client_cert_path,
         # client_key = client_key_path,
@@ -119,15 +119,22 @@ def index_file(file, index_name, host="localhost", max_docs=2000000, batch_size=
             break
         doc = {}
         for name, xpath in mappings.items():
-            doc[name] = child.xpath(xpath)
+            val = child.xpath(xpath)
+            if val is not None:
+                doc[name] = val
         # print(doc)
         if 'productId' not in doc or len(doc['productId']) == 0:
             continue
+        #print(doc)
         docs.append({'_index': index_name, '_id': doc['sku'][0], '_source': doc})
         docs_indexed += 1
         if docs_indexed % batch_size == 0:
             start = perf_counter()
-            bulk(client, docs, request_timeout=60)
+            try:
+                bulk(client, docs, request_timeout=60)
+            except Exception as e:
+                logger.error(e)
+                logger.error(docs)
             stop = perf_counter()
             time_indexing += (stop - start)
             docs = []
