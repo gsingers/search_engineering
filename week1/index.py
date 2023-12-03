@@ -205,7 +205,7 @@ def set_refresh_interval(client, index_name, refresh_interval_secs) -> None:
         }
     }
     logger.debug(f"Updating the index {index_name} with refresh_interval in seconds {refresh_interval_secs}")
-    response = client.indicies.put_settings(index_name, body=index_body)
+    response = client.indices.put_settings(index_name, body=index_body)
     logger.debug(f"Update is done, response: {response}")
 
 
