@@ -55,50 +55,12 @@ def create_query(user_query, filters=None, sort="_score", sortDir="desc", size=1
                         ],
                         "should": [  #
                             {
-                                "match": {
-                                    "name": {
-                                        "query": user_query,
-                                        "fuzziness": "1",
-                                        "prefix_length": 2,
-                                        # short words are often acronyms or usually not misspelled, so don't edit
-                                        "boost": 0.01
-                                    }
-                                }
-                            },
-                            {
-                                "match_phrase": {  # near exact phrase match
-                                    "name.hyphens": {
-                                        "query": user_query,
-                                        "slop": 1,
-                                        "boost": 50
-                                    }
-                                }
-                            },
-                            {
                                 "multi_match": {
                                     "query": user_query,
                                     "type": "phrase",
                                     "slop": "6",
                                     "minimum_should_match": "2<75%",
-                                    "fields": ["name^10", "name.hyphens^10", "shortDescription^5",
-                                               "longDescription^5", "department^0.5", "sku", "manufacturer", "features",
-                                               "categoryPath"]
-                                }
-                            },
-                            {
-                                "terms": {
-                                    # Lots of SKUs in the query logs, boost by it, split on whitespace so we get a list
-                                    "sku": user_query.split(),
-                                    "boost": 50.0
-                                }
-                            },
-                            {  # lots of products have hyphens in them or other weird casing things like iPad
-                                "match": {
-                                    "name.hyphens": {
-                                        "query": user_query,
-                                        "operator": "OR",
-                                        "minimum_should_match": "2<75%"
-                                    }
+                                    "fields": ["name^10", "shortDescription^5"]
                                 }
                             }
                         ],
@@ -109,50 +71,6 @@ def create_query(user_query, filters=None, sort="_score", sortDir="desc", size=1
                 "boost_mode": "multiply",  # how _score and functions are combined
                 "score_mode": "sum",  # how functions are combined
                 "functions": [
-                    {
-                        "filter": {
-                            "exists": {
-                                "field": "salesRankShortTerm"
-                            }
-                        },
-                        "gauss": {
-                            "salesRankShortTerm": {
-                                "origin": "1.0",
-                                "scale": "100"
-                            }
-                        }
-                    },
-                    {
-                        "filter": {
-                            "exists": {
-                                "field": "salesRankMediumTerm"
-                            }
-                        },
-                        "gauss": {
-                            "salesRankMediumTerm": {
-                                "origin": "1.0",
-                                "scale": "1000"
-                            }
-                        }
-                    },
-                    {
-                        "filter": {
-                            "exists": {
-                                "field": "salesRankLongTerm"
-                            }
-                        },
-                        "gauss": {
-                            "salesRankLongTerm": {
-                                "origin": "1.0",
-                                "scale": "1000"
-                            }
-                        }
-                    },
-                    {
-                        "script_score": {
-                            "script": "0.0001"
-                        }
-                    }
                 ]
 
             }
@@ -173,13 +91,17 @@ def search(client, user_query, index="bbuy_products"):
     query_obj = create_query(user_query)
     logging.info(query_obj)
     start = perf_counter()
-    response = client.search(query_obj, index=index)
-    end = perf_counter()
-    if response and response['hits']['hits'] and len(response['hits']['hits']) > 0:
-        hits = response['hits']['hits']
-        logger.debug(json.dumps(response, indent=2))
+    try:
+        response = client.search(query_obj, index=index)
+        end = perf_counter()
+        if response and response['hits']['hits'] and len(response['hits']['hits']) > 0:
+            hits = response['hits']['hits']
+            logger.debug(json.dumps(response, indent=2))
 
-        return hits
+            return hits
+    except Exception as err:
+        logging.debug(f"Caught {err} during search operation on {user_query}")
+        return 0
 
 
 @click.command()

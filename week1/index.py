@@ -196,16 +196,16 @@ def index_file(file, index_name, host="localhost", max_docs=2000000, batch_size=
     return docs_indexed, time_indexing
 
 
-def set_refresh_interval(client, index_name, refresh_interval_secs) -> None:
+def set_refresh_interval(client: OpenSearch, index_name: str, refresh_interval: str) -> None:
     index_body = {
-        "setting": {
+        "settings": {
             "index": {
-                "refresh_interval": refresh_interval_secs
+                "refresh_interval": refresh_interval
             }
         }
     }
-    logger.debug(f"Updating the index {index_name} with refresh_interval in seconds {refresh_interval_secs}")
-    response = client.indices.put_settings(index_name, body=index_body)
+    logger.debug(f"Updating the index {index_name} with refresh_interval in seconds {refresh_interval}")
+    response = client.indices.put_settings(index=index_name, body=index_body)
     logger.debug(f"Update is done, response: {response}")
 
 
@@ -228,7 +228,7 @@ def main(source_dir: str, file_glob: str, index_name: str, workers: int, host: s
     client = get_opensearch(host)
 
     #TODO: set the refresh interval
-    set_refresh_interval(client, index_name, int(refresh_interval))
+    set_refresh_interval(client, index_name, refresh_interval)
 
     logger.debug(client.indices.get_settings(index=index_name))
     start = perf_counter()
@@ -243,7 +243,7 @@ def main(source_dir: str, file_glob: str, index_name: str, workers: int, host: s
     finish = perf_counter()
     logger.info(f'Done. {docs_indexed} were indexed in {(finish - start)/60} minutes.  Total accumulated time spent in `bulk` indexing: {time_indexing/60} minutes')
     # TODO set refresh interval back to 5s
-    set_refresh_interval(client, index_name, 5)
+    set_refresh_interval(client, index_name, '5s')
 
     logger.debug(client.indices.get_settings(index=index_name))
 
