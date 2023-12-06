@@ -215,6 +215,8 @@ def main(source_dir: str, file_glob: str, index_name: str, workers: int, host: s
     client = get_opensearch(host)
 
     #TODO: set the refresh interval
+    client.indices.put_settings(index=index_name, body={'index': {'refresh_interval': refresh_interval}})
+
     logger.debug(client.indices.get_settings(index=index_name))
     start = perf_counter()
     time_indexing = 0
@@ -228,6 +230,8 @@ def main(source_dir: str, file_glob: str, index_name: str, workers: int, host: s
     finish = perf_counter()
     logger.info(f'Done. {docs_indexed} were indexed in {(finish - start)/60} minutes.  Total accumulated time spent in `bulk` indexing: {time_indexing/60} minutes')
     # TODO set refresh interval back to 5s
+    client.indices.put_settings(index=index_name, body={'index': {'refresh_interval': '5s'}})
+    
     logger.debug(client.indices.get_settings(index=index_name))
 
 if __name__ == "__main__":

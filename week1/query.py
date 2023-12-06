@@ -168,6 +168,65 @@ def create_query(user_query, filters=None, sort="_score", sortDir="desc", size=1
         query_obj["_source"] = source
     return query_obj
 
+def create_query_week1(user_query, filters=None, sort="_score", sortDir="desc", size=10, source=None):
+    query_obj = {
+        'size': size,
+        "sort": [
+            {sort: {"order": sortDir}}
+        ],
+        "query": {
+            "function_score": {
+                "query": {
+                    "bool": {
+                        "must": [
+
+                        ],
+                        "should": [  #
+                            {
+                                "match": {
+                                    "name": {
+                                        "query": user_query,
+                                        "fuzziness": "0",
+                                        "fuzzy_transpositions" : False,
+                                        "prefix_length": 2,
+                                        # short words are often acronyms or usually not misspelled, so don't edit
+                                        "boost": 0.01
+                                    }
+                                }
+                            },
+                            {
+                                "multi_match": {
+                                    "query": user_query,
+                                    "type": "phrase",
+                                    "slop": "6",
+                                    "minimum_should_match": "2<75%",
+                                    "fields": ["name^10", "shortDescription^5"]
+                                }
+                            }
+                            
+                        ],
+                        "minimum_should_match": 1,
+                        "filter": filters  #
+                    }
+                },
+                "boost_mode": "multiply",  # how _score and functions are combined
+                "score_mode": "sum",  # how functions are combined
+                "functions": [
+                ]
+
+            }
+        }
+    }
+    if user_query == "*" or user_query == "#":
+        # replace the bool
+        try:
+            query_obj["query"] = {"match_all": {}}
+        except:
+            print("Couldn't replace query for *")
+    if source is not None:  # otherwise use the default and retrieve all source
+        query_obj["_source"] = source
+    return query_obj
+
 
 def search(client, user_query, index="bbuy_products"):
     query_obj = create_query(user_query)
