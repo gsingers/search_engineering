@@ -29,7 +29,7 @@ def get_opensearch(the_host="localhost"):
     auth = ('admin', 'admin')
     client = OpenSearch(
         hosts=[{'host': host, 'port': port}],
-        http_compress=True,  # enables gzip compression for request bodies
+        http_compress=False,  # enables gzip compression for request bodies
         http_auth=auth,
         # client_cert = client_cert_path,
         # client_key = client_key_path,
@@ -238,8 +238,9 @@ def query_opensearch(worker_num, query_file: str, host: str, index_name: str, ma
                     logger.info(f"WN: {worker_num}: First result: {hits[0]}")
                 if aggregations is not None:
                     logger.info(f'WN: {worker_num}: Aggs: {aggregations}')
-        except:
+        except Exception as e:
             logger.warn(f'WN: {worker_num}: Failed to process query: {query}')
+            logger.warn(e)
         i+= 1
         if stop_event.is_set():
             logger.info(f"WN: {worker_num}: Stopped early.")
