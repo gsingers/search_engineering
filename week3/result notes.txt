@@ -1,0 +1,99 @@
+Week 3
+
+Q1: Which node was elected as cluster manager?
+The three nodes have the cluster_manager role:
+"roles": [
+        "cluster_manager",
+        "data",
+        "ingest",
+        "remote_cluster_client"
+      ]
+And for the cluster:
+"cluster": {
+          "initial_master_nodes": "opensearch-node1,opensearch-node2,opensearch-node3",
+          "name": "opensearch-cluster"
+        }
+
+But Node 2 is elected master:
+
+GET _cat/nodes
+172.18.0.8 23 93  5 2.33 4.20 3.54 dimr cluster_manager,data,ingest,remote_cluster_client - opensearch-node3
+172.18.0.6 45 93  4 2.33 4.20 3.54 dimr cluster_manager,data,ingest,remote_cluster_client * opensearch-node2
+172.18.0.7 28 93 10 2.33 4.20 3.54 dimr cluster_manager,data,ingest,remote_cluster_client - opensearch-node1
+
+Elastic docs:
+master, m
+(Default) Indicates whether the node is the elected master node. Returned values include * (elected master) and - (not elected master).
+
+Stop and force a master 
+docker stop opensearch-node2
+
+Q2: After stopping the previous cluster manager, which node was elected the new cluster manager?
+opensearch-node3 was selected as the new cluster manager
+
+GET _cat/nodes
+172.18.0.8 44 90 14 1.29 2.56 3.00 dimr cluster_manager,data,ingest,remote_cluster_client * opensearch-node3
+172.18.0.7 49 90 13 1.29 2.56 3.00 dimr cluster_manager,data,ingest,remote_cluster_client - opensearch-node1
+
+Q3: Did the cluster manager node change again? (was a different node elected as cluster manager when you started the node back up?)
+
+No, its still the same: opensearch-node3
+
+GET _cat/nodes
+172.18.0.6 25 91 6 2.04 2.57 2.93 dimr cluster_manager,data,ingest,remote_cluster_client - opensearch-node2
+172.18.0.8 13 91 4 2.04 2.57 2.93 dimr cluster_manager,data,ingest,remote_cluster_client * opensearch-node3
+172.18.0.7 11 91 4 2.04 2.57 2.93 dimr cluster_manager,data,ingest,remote_cluster_client - opensearch-node1
+
+
+Level 2
+
+curl -k -X PUT -u admin:admin "https://localhost:9200/bbuy_products" -H 'Content-Type: application/json' -d @bbuy_products.json
+
+python index.py -s /workspace/datasets/product_data/products -w 8 -b 500
+INFO:Indexing /workspace/datasets/product_data/products to bbuy_products with 8 workers, refresh_interval of -1 to host localhost with a maximum number of docs sent per file per worker of 200000 and 500 per batch.
+INFO:Done. 1275077 were indexed in 21.183495100050155 minutes.  Total accumulated time spent in `bulk` indexing: 57.94000969593083 minutes
+
+
+GET /_cat/shards/bbuy_products?v&s=shard,prirep
+index         shard prirep state     docs   store ip         node
+bbuy_products 0     p      STARTED 417730 527.5mb 172.18.0.7 opensearch-node1
+bbuy_products 0     r      STARTED 409512 502.8mb 172.18.0.6 opensearch-node2
+bbuy_products 0     r      STARTED 402138 578.8mb 172.18.0.8 opensearch-node3
+bbuy_products 1     p      STARTED 420736 565.4mb 172.18.0.6 opensearch-node2
+bbuy_products 1     r      STARTED 410257 444.5mb 172.18.0.7 opensearch-node1
+bbuy_products 1     r      STARTED 419590 683.6mb 172.18.0.8 opensearch-node3
+bbuy_products 2     p      STARTED 410388 494.5mb 172.18.0.8 opensearch-node3
+bbuy_products 2     r      STARTED 400496 466.8mb 172.18.0.7 opensearch-node1
+bbuy_products 2     r      STARTED 401508 421.6mb 172.18.0.6 opensearch-node2
+
+
+Q4: How much faster was it to index the dataset with 0 replicas versus the previous time with 2 replica shards?
+21 min vs 12 min
+
+INFO:Indexing /workspace/datasets/product_data/products to bbuy_products with 8 workers, refresh_interval of -1 to host localhost with a maximum number of docs sent per file per worker of 200000 and 500 per batch.
+INFO:Done. 1275077 were indexed in 12.016417148399826 minutes.  Total accumulated time spent in `bulk` indexing: 19.57734590168014 minutes
+
+Q5: Why was it faster?
+Because it didn't have to make the copies from the primary shard to the replicas.
+
+curl -k -XPUT -u admin:admin 'https://localhost:9200/bbuy_products/_settings' -H 'Content-Type: application/json' -d '{"index": {"number_of_replicas": 2}}'
+
+Q6: How long did it take to create the new replica shards?  This will be the difference in time between those two log messages.
+
+It took 2 minutes.
+
+Q7: Those two messages were both logged by the cluster_manager. Why do you think the cluster manager is the node that logs these actions (versus non-manager nodes)?
+
+Because its function is to orchestrate the allocations within the cluster. It works as a source of truth for what happens in the cluster.
+
+
+Level 3
+
+python query.py -q /workspace/datasets/train.csv -w 4 -m 25000
+
+Q8: Looking at the metrics dashboard, what queries/sec rate are you getting?
+
+152 queries/sec
+
+Q9: How does that compare to the max queries/sec rate you saw in week 2?
+Week 2 was around 80 queries/sec. Almost double!
